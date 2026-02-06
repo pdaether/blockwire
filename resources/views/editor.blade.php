@@ -10,8 +10,8 @@
         x-cloak
         x-data="dropblockeditor()"
         class="dropblockeditor flex flex-col min-h-screen bg-gray-100">
-        <div class="{{ config('dropblockeditor.brand.colors.topbar_bg', 'bg-white') }} px-5 py-5 border-b text-white flex justify-between flex-initial">
-            <div class="flex items-center">
+        <div class="{{ config('dropblockeditor.brand.colors.topbar_bg', 'bg-white') }} px-5 py-5 border-b text-white flex flex-initial">
+            <div class="flex items-center flex-1">
                 @if($logo = config('dropblockeditor.brand.logo', false))
                     <div class="mr-2">{!! $logo !!}</div>
                 @endif
@@ -19,7 +19,28 @@
                     {{ $title ?? __('No title') }}
                 </div>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center justify-center gap-2">
+                <div class="flex items-center bg-white rounded-md border shadow-sm">
+                    <button x-on:click="device = 'mobile'" class="p-2 border-r" :class="device === 'mobile' ? 'text-gray-800' : 'text-gray-300'">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+                        </svg>
+                    </button>
+
+                    <button x-on:click="device = 'tablet'" class="p-2 border-r" :class="device === 'tablet' ? 'text-gray-800' : 'text-gray-300'">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5h3m-6.75 2.25h10.5a2.25 2.25 0 002.25-2.25v-15a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 4.5v15a2.25 2.25 0 002.25 2.25z" />
+                        </svg>
+                    </button>
+
+                    <button x-on:click="device = 'desktop'" class="p-2" :class="device === 'desktop' ? 'text-gray-800' : 'text-gray-300'">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="flex items-center justify-end gap-2 flex-1">
                 <div class="flex gap-2 mx-4">
                     <button wire:click="undo" @disabled(!$this->canUndo()) class="{{ $this->canUndo() ? '' : 'opacity-25' }}" aria-label="Undo change">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
@@ -42,25 +63,6 @@
 
             <div class="relative flex-1 flex justify-center">
                 <iframe id="frame" srcdoc="{{ $result }}" class="h-full" :class="device === 'mobile' ? 'w-[320px]' : device === 'tablet' ? 'w-[768px]' : 'w-full'"></iframe>
-                <div class="absolute right-4 top-4 flex items-center bg-white rounded-md border shadow-sm">
-                    <button x-on:click="device = 'mobile'" class="p-2 border-r" :class="device === 'mobile' ? 'text-gray-800' : 'text-gray-300'">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
-                        </svg>
-                    </button>
-
-                    <button x-on:click="device = 'tablet'" class="p-2 border-r" :class="device === 'tablet' ? 'text-gray-800' : 'text-gray-300'">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5h3m-6.75 2.25h10.5a2.25 2.25 0 002.25-2.25v-15a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 4.5v15a2.25 2.25 0 002.25 2.25z" />
-                        </svg>
-                    </button>
-
-                    <button x-on:click="device = 'desktop'" class="p-2" :class="device === 'desktop' ? 'text-gray-800' : 'text-gray-300'">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" />
-                        </svg>
-                    </button>
-                </div>
                 <div wire:loading class="absolute right-5 bottom-5">
                     <svg class="animate-spin h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
