@@ -1,5 +1,3 @@
-<p><img src="./art/logo.svg" alt="Logo BlockWire"></p>
-
 [![Build Status](https://github.com/pdaether/blockwire/workflows/run-tests/badge.svg?label=tests)](https://github.com/pdaether/blockwire/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/pdaether/blockwire.svg)](https://packagist.org/packages/pdaether/blockwire)
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/pdaether/blockwire.svg)](https://packagist.org/packages/pdaether/blockwire)
