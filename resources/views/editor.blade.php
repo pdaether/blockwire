@@ -20,24 +20,40 @@
                 </div>
             </div>
             <div class="flex items-center justify-center gap-2">
-                <div class="flex items-center bg-white rounded-md border shadow-sm">
-                    <button x-on:click="device = 'mobile'" class="p-2 border-r" :class="device === 'mobile' ? 'text-gray-800' : 'text-gray-300'">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
-                        </svg>
-                    </button>
+                <div class="flex items-center gap-2">
+                    <div class="flex items-center bg-white rounded-md border shadow-sm">
+                        <button x-on:click="device = 'mobile'" class="p-2 border-r" :class="device === 'mobile' ? 'text-gray-800' : 'text-gray-300'">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+                            </svg>
+                        </button>
 
-                    <button x-on:click="device = 'tablet'" class="p-2 border-r" :class="device === 'tablet' ? 'text-gray-800' : 'text-gray-300'">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5h3m-6.75 2.25h10.5a2.25 2.25 0 002.25-2.25v-15a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 4.5v15a2.25 2.25 0 002.25 2.25z" />
-                        </svg>
-                    </button>
+                        <button x-on:click="device = 'tablet'" class="p-2 border-r" :class="device === 'tablet' ? 'text-gray-800' : 'text-gray-300'">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5h3m-6.75 2.25h10.5a2.25 2.25 0 002.25-2.25v-15a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 4.5v15a2.25 2.25 0 002.25 2.25z" />
+                            </svg>
+                        </button>
 
-                    <button x-on:click="device = 'desktop'" class="p-2" :class="device === 'desktop' ? 'text-gray-800' : 'text-gray-300'">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" />
-                        </svg>
-                    </button>
+                        <button x-on:click="device = 'desktop'" class="p-2" :class="device === 'desktop' ? 'text-gray-800' : 'text-gray-300'">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center bg-white rounded-md border shadow-sm">
+                        <button wire:click="undo" @disabled(!$this->canUndo()) class="p-2 border-r {{ $this->canUndo() ? 'text-gray-800 hover:bg-gray-50' : 'text-gray-300' }}" aria-label="Undo">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+                            </svg>
+                        </button>
+
+                        <button wire:click="redo" @disabled(!$this->canRedo()) class="p-2 {{ $this->canRedo() ? 'text-gray-800 hover:bg-gray-50' : 'text-gray-300' }}" aria-label="Redo">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 15l6-6m0 0l-6-6m6 6H9a6 6 0 000 12h3" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="flex items-center justify-end gap-2 flex-1">
