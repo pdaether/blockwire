@@ -18,9 +18,60 @@ window.blockwire = (config) => {
 
         activeBlockId: null,
 
+        // JSON Modal state
+        showJsonModal: false,
+        jsonPayload: '',
+        loadingJson: false,
+        copyStatus: '',
+
         insertBeforeClasses: ['after:opacity-100', 'after:top-0', 'after:h-[5px]'],
 
         insertAfterClasses: ['after:opacity-100', 'after:bottom-0', 'after:h-[5px]'],
+
+        async openJsonModal() {
+            this.loadingJson = true;
+            this.copyStatus = '';
+            try {
+                const json = await this.component().call('getJsonSnapshot');
+                this.jsonPayload = json;
+                this.showJsonModal = true;
+            } catch (e) {
+                console.error('Failed to fetch JSON snapshot:', e);
+            } finally {
+                this.loadingJson = false;
+            }
+        },
+
+        async copyToClipboard() {
+            try {
+                // Try modern clipboard API first
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(this.jsonPayload);
+                } else {
+                    // Fallback for non-secure contexts (e.g., localhost HTTP)
+                    const textArea = document.createElement('textarea');
+                    textArea.value = this.jsonPayload;
+                    textArea.style.position = 'fixed';
+                    textArea.style.left = '-9999px';
+                    textArea.style.top = '-9999px';
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                }
+                this.copyStatus = 'Copied!';
+                setTimeout(() => this.copyStatus = '', 2000);
+            } catch (e) {
+                console.error('Copy failed:', e);
+                this.copyStatus = 'Failed to copy';
+            }
+        },
+
+        closeJsonModal() {
+            this.showJsonModal = false;
+            this.copyStatus = '';
+        },
 
         init() {
             this.iframe = document.getElementById("frame");
@@ -102,7 +153,7 @@ window.blockwire = (config) => {
                 })
 
                 el.addEventListener('drop', e => {
-                    e.preventDefault
+                    e.preventDefault()
 
                     if (!e.target.closest('[drop-placeholder]')) {
                         return;
@@ -205,7 +256,7 @@ window.blockwire = (config) => {
                 })
 
                 el.addEventListener('dragleave', e => {
-                    e.preventDefault
+                    e.preventDefault()
 
                     if (e.target.hasAttribute('is-target')) {
                         e.target.classList.remove(...this.insertAfterClasses, ...this.insertBeforeClasses);
@@ -213,7 +264,7 @@ window.blockwire = (config) => {
                 })
 
                 el.addEventListener('drop', e => {
-                    e.preventDefault
+                    e.preventDefault()
 
                     let draggingEl = root.querySelector('[dragging]')
                     let insertingEl = document.querySelector('[inserting]')

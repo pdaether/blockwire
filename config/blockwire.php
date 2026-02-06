@@ -10,6 +10,7 @@ return [
     | include_js: Whether to load the editor JavaScript in the editor template.
     | include_css: Whether to load the editor CSS in the editor template.
     | preview_css: Public path to CSS to override in the preview.
+    | show_source_button: Whether to show the source code view button in the editor.
     | brand: Custom branding for the editor.
     |
     */
@@ -19,6 +20,8 @@ return [
     'include_css' => true,
 
     'preview_css' => null,
+
+    'show_source_button' => true,
 
     'brand' => [
         'logo' => '<svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">   <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" /> </svg> ',

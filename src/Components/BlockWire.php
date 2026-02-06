@@ -235,6 +235,11 @@ class BlockWire extends Component
         ];
     }
 
+    public function getJsonSnapshot(): string
+    {
+        return json_encode($this->activeBlocks, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    }
+
     public function render()
     {
         $this->process();
