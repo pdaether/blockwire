@@ -4,7 +4,7 @@ namespace Pdaether\BlockWire\Parsers;
 
 class Parse
 {
-    public static function execute($properties)
+    public static function execute(array $properties): string
     {
         $output = '';
 

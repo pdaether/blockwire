@@ -4,7 +4,7 @@ namespace Pdaether\BlockWire\Components;
 
 class Example extends BlockEditComponent
 {
-    public function render()
+    public function render(): string
     {
         return <<<'blade'
             <div class="space-y-4">

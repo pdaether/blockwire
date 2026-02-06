@@ -6,7 +6,7 @@ use DOMDocument;
 
 class Editor extends Parser implements ParserInterface
 {
-    public function output()
+    public function output(): string
     {
         if ($this->context !== 'editor') {
             return $this->input;

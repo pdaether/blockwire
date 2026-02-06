@@ -13,11 +13,11 @@ abstract class Block implements BlockInterface
 
     public string $blockEditComponent;
 
-    public mixed $category = null;
+    public ?string $category = null;
 
     public array $data = [];
 
-    abstract public function render();
+    abstract public function render(): string|\Illuminate\View\View;
 
     public function getIcon(): ?string
     {
@@ -29,7 +29,7 @@ abstract class Block implements BlockInterface
         return $this->title;
     }
 
-    public function getCategory()
+    public function getCategory(): ?string
     {
         return $this->category;
     }
@@ -39,7 +39,7 @@ abstract class Block implements BlockInterface
         return $this->data;
     }
 
-    public function data($data): static
+    public function data(array $data): static
     {
         $this->data = $data;
 
@@ -55,7 +55,7 @@ abstract class Block implements BlockInterface
         return $this->render();
     }
 
-    public static function fromName($name, ...$args)
+    public static function fromName(string $name, mixed ...$args): static
     {
         return new $name($args);
     }

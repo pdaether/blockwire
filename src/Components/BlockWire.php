@@ -10,31 +10,31 @@ use Pdaether\BlockWire\Parsers\Parse;
 
 class BlockWire extends Component
 {
-    public $initialRender = true;
+    public bool $initialRender = true;
 
-    public $title;
+    public ?string $title = null;
 
-    public $base = 'blockwire::base';
+    public string $base = 'blockwire::base';
 
-    public $hash;
+    public string $hash = '';
 
-    public $parsers = [];
+    public array $parsers = [];
 
-    public $result;
+    public string $result = '';
 
     public $activeBlockIndex = false;
 
-    public $activeBlocks = [];
+    public array $activeBlocks = [];
 
-    public $history = [];
+    public array $history = [];
 
     public int $historyIndex = -1;
 
-    public $buttons = null;
+    public ?array $buttons = null;
 
-    public $blocks = null;
+    public ?array $blocks = null;
 
-    public function updatedActiveBlockIndex($value): void
+    public function updatedActiveBlockIndex(int|string|false $value): void
     {
         $this->dispatch('activeBlockIndexChanged', $value);
     }
@@ -102,7 +102,7 @@ class BlockWire extends Component
         $this->historyIndex = count($this->history) - 1;
     }
 
-    public function blockUpdated($position, $data): void
+    public function blockUpdated(int $position, array $data): void
     {
         $this->activeBlocks[$position]['data'] = $data;
 
@@ -126,7 +126,7 @@ class BlockWire extends Component
         $this->recordInHistory();
     }
 
-    public function cloneBlock($blockId = null): void
+    public function cloneBlock(?int $blockId = null): void
     {
         $index = $blockId !== null ? $blockId : $this->activeBlockIndex;
 
@@ -143,7 +143,7 @@ class BlockWire extends Component
         $this->recordInHistory();
     }
 
-    public function deleteBlock($blockId = null): void
+    public function deleteBlock(?int $blockId = null): void
     {
         $index = $blockId !== null ? $blockId : $this->activeBlockIndex;
 
@@ -160,7 +160,7 @@ class BlockWire extends Component
         $this->recordInHistory();
     }
 
-    public function getBlockFromClassName($name): BlockInterface
+    public function getBlockFromClassName(string $name): BlockInterface
     {
         return Block::fromName($name);
     }
@@ -190,7 +190,7 @@ class BlockWire extends Component
         $this->recordInHistory();
     }
 
-    public function reorder($ids): void
+    public function reorder(array $ids): void
     {
         $this->activeBlocks = collect($ids)
             ->map(function ($id) {
@@ -201,7 +201,7 @@ class BlockWire extends Component
         $this->dispatch('editorIsUpdated', $this->updateProperties());
     }
 
-    public function insertBlock($id, $index = null, $placement = null): void
+    public function insertBlock(int $id, ?int $index = null, ?string $placement = null): void
     {
         if ($index === null) {
             $block = $this->blocks[$id];
@@ -222,7 +222,7 @@ class BlockWire extends Component
         $this->recordInHistory();
     }
 
-    public function prepareActiveBlockKey($activeBlockIndex): string
+    public function prepareActiveBlockKey(int|false $activeBlockIndex): string
     {
         return "{$activeBlockIndex}-{$this->hash}";
     }

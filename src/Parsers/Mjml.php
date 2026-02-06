@@ -10,7 +10,7 @@ use Symfony\Component\Process\Process;
 
 class Mjml extends Parser implements ParserInterface
 {
-    public function parse()
+    public function parse(): static
     {
         $content = '<mj-raw>'.$this->dropPlaceholderHtml().'</mj-raw>';
 
@@ -50,7 +50,7 @@ class Mjml extends Parser implements ParserInterface
         return $this;
     }
 
-    public function parseWithNode($content)
+    public function parseWithNode(string $content): string
     {
         $process = new Process([
             config('blockwire.node_binary'),
@@ -71,7 +71,7 @@ class Mjml extends Parser implements ParserInterface
         return $process->getOutput();
     }
 
-    public function parseWithApi($content)
+    public function parseWithApi(string $content): string
     {
         $mjml = Http::withBasicAuth(config('blockwire.mjml.api.username'), config('blockwire.mjml.api.password'))
             ->post(config('blockwire.mjml.api.url'), [

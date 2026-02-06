@@ -6,11 +6,11 @@ use Livewire\Component;
 
 class BlockEditComponent extends Component
 {
-    public $position;
+    public int $position;
 
     public array $block;
 
-    public $data = [];
+    public array $data = [];
 
     public function mount()
     {

@@ -9,11 +9,11 @@ use Illuminate\Support\Str;
 
 class MakeBlockCommand extends Command
 {
-    public $signature = 'blockwire:make {name} {--without-edit-component}';
+    public string $signature = 'blockwire:make {name} {--without-edit-component}';
 
-    public $description = 'Create a new editor block';
+    public string $description = 'Create a new editor block';
 
-    protected function makeDirectory($path)
+    protected function makeDirectory(string $path): string
     {
         if (! File::isDirectory($path)) {
             File::makeDirectory($path, 0777, true, true);
@@ -27,7 +27,7 @@ class MakeBlockCommand extends Command
         return ucwords(Pluralizer::singular($name));
     }
 
-    public function getStubContents($stub, $stubVariables = []): array|bool|string
+    public function getStubContents(string $stub, array $stubVariables = []): string|false
     {
         $contents = file_get_contents($stub);
 

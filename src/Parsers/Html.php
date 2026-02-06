@@ -7,7 +7,7 @@ use Pdaether\BlockWire\Blocks\Block;
 
 class Html extends Parser implements ParserInterface
 {
-    public function parse()
+    public function parse(): static
     {
         $content = $this->dropPlaceholderHtml();
 

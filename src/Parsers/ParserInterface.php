@@ -4,11 +4,11 @@ namespace Pdaether\BlockWire\Parsers;
 
 interface ParserInterface
 {
-    public function base($base);
+    public function base(string $base): static;
 
-    public function context($context);
+    public function context(string $context): static;
 
-    public function parse();
+    public function parse(): static;
 
-    public function output();
+    public function output(): string;
 }

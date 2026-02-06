@@ -6,10 +6,8 @@ interface BlockInterface
 {
     /**
      * Render the block content
-     *
-     * @return string|\Illuminate\View\View
      */
-    public function render();
+    public function render(): string|\Illuminate\View\View;
 
     /**
      * Get block data
@@ -28,10 +26,8 @@ interface BlockInterface
 
     /**
      * Get block category
-     *
-     * @return mixed
      */
-    public function getCategory();
+    public function getCategory(): ?string;
 
     /**
      * Set block data

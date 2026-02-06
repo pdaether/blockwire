@@ -13,7 +13,7 @@ class [name] extends Block implements BlockInterface
 
     public string $blockEditComponent = '[edit-component-name]';
 
-    public function render()
+    public function render(): string
     {
         return <<<'blade'
             <div></div>

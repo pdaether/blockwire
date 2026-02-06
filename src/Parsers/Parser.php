@@ -6,44 +6,44 @@ use Illuminate\Support\Facades\Blade;
 
 abstract class Parser
 {
-    public $output;
+    public string $output = '';
 
-    public $context = 'editor';
+    public string $context = 'editor';
 
-    public $base;
+    public ?string $base = null;
 
-    public $blockArguments = [];
+    public array $blockArguments = [];
 
-    public function __construct(public $input, public $blocks = [])
+    public function __construct(public string $input, public array $blocks = [])
     {
         //
     }
 
-    public function parse()
+    public function parse(): static
     {
         return $this;
     }
 
-    public function base($base)
+    public function base(string $base): static
     {
         $this->base = $base;
 
         return $this;
     }
 
-    public function context($context)
+    public function context(string $context): static
     {
         $this->context = $context;
 
         return $this;
     }
 
-    public function output()
+    public function output(): string
     {
         return $this->output;
     }
 
-    public function setBlockArguments($key, $value, $method = null)
+    public function setBlockArguments(string $key, mixed $value, ?string $method = null): void
     {
         if ($method) {
             $this->blockArguments[$key][$method] = $value;
@@ -107,7 +107,7 @@ abstract class Parser
         return '<div drop-placeholder class="h-full min-h-[200px] text-gray-600 text-lg flex items-center justify-center"><p>'.__('Drop your block here...').'</p></div>';
     }
 
-    public function createBaseView($attributes)
+    public function createBaseView(array $attributes): string
     {
         if (view()->exists($this->base)) {
             return view($this->base, $attributes)->render();

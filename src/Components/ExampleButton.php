@@ -6,13 +6,13 @@ use Livewire\Component;
 
 class ExampleButton extends Component
 {
-    public $properties;
+    public ?array $properties = null;
 
     protected $listeners = [
         'editorIsUpdated' => 'editorIsUpdated',
     ];
 
-    public function editorIsUpdated($properties)
+    public function editorIsUpdated(array $properties): void
     {
         $this->properties = $properties;
     }
