@@ -3,11 +3,11 @@
 namespace Pdaether\DropBlockEditor;
 
 use Illuminate\Support\Facades\View;
+use Livewire\Livewire;
 use Pdaether\DropBlockEditor\Commands\MakeBlockCommand;
 use Pdaether\DropBlockEditor\Components\DropBlockEditor;
 use Pdaether\DropBlockEditor\Components\Example;
 use Pdaether\DropBlockEditor\Components\ExampleButton;
-use Livewire\Livewire;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 

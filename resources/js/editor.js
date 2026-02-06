@@ -16,6 +16,8 @@ window.dropblockeditor = (config) => {
 
         currentDragItem: null,
 
+        activeBlockId: null,
+
         insertBeforeClasses: ['after:opacity-100', 'after:top-0', 'after:h-[5px]'],
 
         insertAfterClasses: ['after:opacity-100', 'after:bottom-0', 'after:h-[5px]'],
@@ -33,8 +35,39 @@ window.dropblockeditor = (config) => {
             this.iframe.addEventListener("load", () => {
                 this.initListeners()
 
+                // Reapply active class to the currently active block after iframe reloads
+                if (this.activeBlockId !== null && this.activeBlockId !== false) {
+                    let root = this.iframe.contentWindow.document;
+                    let activeBlock = root.querySelector('[drag-item][data-block="' + this.activeBlockId + '"]');
+                    if (activeBlock) {
+                        root.querySelectorAll('[drag-item]').forEach(item => {
+                            item.classList.remove('active');
+                        });
+                        activeBlock.classList.add('active');
+                    }
+                }
+
                 this.iframe.contentWindow.scrollTo(0, this.lastTopPos)
             })
+
+            // Listen for active block changes
+            Livewire.on('activeBlockIndexChanged', (data) => {
+                this.activeBlockId = data;
+
+                if (this.iframe && this.iframe.contentWindow) {
+                    let root = this.iframe.contentWindow.document;
+                    root.querySelectorAll('[drag-item]').forEach(item => {
+                        item.classList.remove('active');
+                    });
+
+                    if (data !== false && data !== null) {
+                        let activeBlock = root.querySelector('[drag-item][data-block="' + data + '"]');
+                        if (activeBlock) {
+                            activeBlock.classList.add('active');
+                        }
+                    }
+                }
+            });
         },
 
         initListeners() {
@@ -93,8 +126,22 @@ window.dropblockeditor = (config) => {
 
             root.querySelectorAll('[drag-item]').forEach(el => {
                 el.addEventListener('click', e => {
+                    let dragItem = e.target.closest('[drag-item]');
+                    let blockId = dragItem.dataset.block;
+
+                    // Store the active block ID
+                    this.activeBlockId = blockId;
+
+                    // Remove active class from all blocks
+                    root.querySelectorAll('[drag-item]').forEach(item => {
+                        item.classList.remove('active');
+                    });
+
+                    // Add active class to clicked block
+                    dragItem.classList.add('active');
+
                     Livewire.dispatch('blockEditComponentSelected', {
-                        blockId: e.target.closest('[drag-item]').dataset.block
+                        blockId: blockId
                     });
                 }, false)
 

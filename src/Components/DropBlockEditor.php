@@ -3,9 +3,9 @@
 namespace Pdaether\DropBlockEditor\Components;
 
 use Illuminate\Support\Str;
+use Livewire\Component;
 use Pdaether\DropBlockEditor\Blocks\Block;
 use Pdaether\DropBlockEditor\Parsers\Parse;
-use Livewire\Component;
 
 class DropBlockEditor extends Component
 {
@@ -32,6 +32,11 @@ class DropBlockEditor extends Component
     public $buttons = null;
 
     public $blocks = null;
+
+    public function updatedActiveBlockIndex($value): void
+    {
+        $this->dispatch('activeBlockIndexChanged', $value);
+    }
 
     protected $listeners = [
         'blockEditComponentSelected' => 'blockSelected',

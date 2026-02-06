@@ -54,10 +54,28 @@ abstract class Parser
 
     public function prepareBlockForEditor(array $args)
     {
+        $activeBorderColor = config('dropblockeditor.brand.colors.active_border', 'blue-500');
+
+        // Map common Tailwind color classes to hex values for inline styles
+        $colorMap = [
+            'blue-500' => '#3b82f6',
+            'red-500' => '#ef4444',
+            'green-500' => '#22c55e',
+            'yellow-500' => '#eab308',
+            'purple-500' => '#a855f7',
+            'pink-500' => '#ec4899',
+            'indigo-500' => '#6366f1',
+            'gray-500' => '#6b7280',
+            'orange-500' => '#f97316',
+            'teal-500' => '#14b8a6',
+        ];
+
+        $borderColor = $colorMap[$activeBorderColor] ?? '#3b82f6';
+
         $args = collect([
             'blockHtml' => $args['blockHtml'],
             'id' => $args['id'],
-            'before' => '<div drag-item draggable="true" class="[&_*]:pointer-events-none relative hover:opacity-75 hover:cursor-pointer before:opacity-0 hover:before:opacity-100 before:absolute before:top-0 before:left-0 before:w-full before:h-full before:border-2 before:border-gray-400 after:opacity-0 after:absolute after:bg-gray-400 after:left-0 after:w-full" data-block="'.$args['id'].'">',
+            'before' => '<div drag-item draggable="true" class="[&_*]:pointer-events-none relative hover:opacity-75 hover:cursor-pointer before:opacity-0 hover:before:opacity-100 before:absolute before:top-0 before:left-0 before:w-full before:h-full before:border-2 before:border-gray-400 after:opacity-0 after:absolute after:bg-gray-400 after:left-0 after:w-full [&.active]:before:opacity-100" style="--active-border-color: '.$borderColor.'" data-block="'.$args['id'].'">',
             'after' => '</div>',
             'wrap' => [],
         ])

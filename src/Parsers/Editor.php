@@ -28,8 +28,18 @@ class Editor extends Parser implements ParserInterface
             $editorCss = file_get_contents(__DIR__.'/../../public/editor.css');
         }
 
+        // Add CSS for active block border using CSS variable
+        $activeBorderCss = '
+            [drag-item].active::before {
+                border-color: var(--active-border-color) !important;
+            }
+            [drag-item].active:hover::before {
+                border-color: var(--active-border-color) !important;
+            }
+        ';
+
         // Injecting CSS into the preview frame.
-        $styleElement = $dom->createElement('style', htmlentities($editorCss));
+        $styleElement = $dom->createElement('style', htmlentities($editorCss.$activeBorderCss));
         $styleElement->setAttribute('type', 'text/css');
 
         $head = $dom->getElementsByTagName('head')->item(0);
