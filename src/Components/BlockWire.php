@@ -5,6 +5,7 @@ namespace Pdaether\BlockWire\Components;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use Pdaether\BlockWire\Blocks\Block;
+use Pdaether\BlockWire\Contracts\BlockInterface;
 use Pdaether\BlockWire\Parsers\Parse;
 
 class BlockWire extends Component
@@ -159,12 +160,12 @@ class BlockWire extends Component
         $this->recordInHistory();
     }
 
-    public function getBlockFromClassName($name): Block
+    public function getBlockFromClassName($name): BlockInterface
     {
         return Block::fromName($name);
     }
 
-    public function getActiveBlock(): bool|Block
+    public function getActiveBlock(): bool|BlockInterface
     {
         if (isset($this->activeBlockIndex) && $this->activeBlockIndex === false) {
             return false;

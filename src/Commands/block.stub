@@ -3,8 +3,9 @@
 namespace [namespace];
 
 use Pdaether\BlockWire\Blocks\Block;
+use Pdaether\BlockWire\Contracts\BlockInterface;
 
-class [name] extends Block
+class [name] extends Block implements BlockInterface
 {
     public string $title = '[name]';
 

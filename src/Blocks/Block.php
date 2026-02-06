@@ -3,8 +3,9 @@
 namespace Pdaether\BlockWire\Blocks;
 
 use Illuminate\View\View;
+use Pdaether\BlockWire\Contracts\BlockInterface;
 
-abstract class Block
+abstract class Block implements BlockInterface
 {
     public string $title;
 
