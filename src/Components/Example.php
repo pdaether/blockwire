@@ -1,6 +1,6 @@
 <?php
 
-namespace Jeffreyvr\DropBlockEditor\Components;
+namespace Pdaether\DropBlockEditor\Components;
 
 class Example extends BlockEditComponent
 {

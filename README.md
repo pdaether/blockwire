@@ -1,8 +1,12 @@
 <p><img src="./art/logo.svg" alt="Logo DropBlockEditor"></p>
 
-[![Build Status](https://github.com/jeffreyvr/dropblockeditor/workflows/run-tests/badge.svg?label=tests)](https://github.com/jeffreyvr/dropblockeditor/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/jeffreyvr/dropblockeditor.svg)](https://packagist.org/packages/jeffreyvr/dropblockeditor)
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/jeffreyvr/dropblockeditor.svg)](https://packagist.org/packages/jeffreyvanrossum/dropblockeditor)
+[![Build Status](https://github.com/pdaether/dropblockeditor/workflows/run-tests/badge.svg?label=tests)](https://github.com/pdaether/dropblockeditor/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![Total Downloads](https://img.shields.io/packagist/dt/pdaether/dropblockeditor.svg)](https://packagist.org/packages/pdaether/dropblockeditor)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/pdaether/dropblockeditor.svg)](https://packagist.org/packages/pdaether/dropblockeditor)
+
+## About This Fork
+
+This is a maintained fork of [jeffreyvr/dropblockeditor](https://github.com/jeffreyvr/dropblockeditor) originally created by [Jeffrey van Rossum](https://github.com/jeffreyvr). This fork continues development with additional features and maintenance.
 
 ## Introduction
 
@@ -26,11 +30,12 @@ Contributions are welcome!
 
 ## Security Vulnerabilities
 
-If you discover any security-related issues, please [send an email](https://vanrossum.dev/en/contact) instead of using the issue tracker.
+If you discover any security-related issues, please open an issue on GitHub.
 
 ## Credits
 
 - [Jeffrey van Rossum](https://github.com/jeffreyvr)
+- [Patrick Dahse](https://github.com/pdaether)
 - [All Contributors](../../contributors)
 
 ## License

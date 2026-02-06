@@ -1,9 +1,9 @@
 <?php
 
-namespace Jeffreyvr\DropBlockEditor\Parsers;
+namespace Pdaether\DropBlockEditor\Parsers;
 
 use Illuminate\Support\Facades\Blade;
-use Jeffreyvr\DropBlockEditor\Blocks\Block;
+use Pdaether\DropBlockEditor\Blocks\Block;
 
 class Html extends Parser implements ParserInterface
 {

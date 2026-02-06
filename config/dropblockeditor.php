@@ -39,7 +39,7 @@ return [
     */
 
     'blocks' => [
-        Jeffreyvr\DropBlockEditor\Blocks\Example::class,
+        Pdaether\DropBlockEditor\Blocks\Example::class,
     ],
 
     /*
@@ -68,9 +68,9 @@ return [
     */
 
     'parsers' => [
-        // Jeffreyvr\DropBlockEditor\Parsers\Mjml::class,
-        Jeffreyvr\DropBlockEditor\Parsers\Html::class,
-        Jeffreyvr\DropBlockEditor\Parsers\Editor::class,
+        // Pdaether\DropBlockEditor\Parsers\Mjml::class,
+        Pdaether\DropBlockEditor\Parsers\Html::class,
+        Pdaether\DropBlockEditor\Parsers\Editor::class,
     ],
 
     /*

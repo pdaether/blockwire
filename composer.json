@@ -1,14 +1,19 @@
 {
-    "name": "jeffreyvr/dropblockeditor",
-    "description": "A simple block editor made with Livewire.",
+    "name": "pdaether/dropblockeditor",
+    "description": "A simple block editor made with Livewire. Maintained fork of jeffreyvr/dropblockeditor",
     "keywords": [
-        "jeffreyvanrossum",
+        "pdaether",
         "laravel",
         "dropblockeditor"
     ],
-    "homepage": "https://github.com/jeffreyvr/dropblockeditor",
+    "homepage": "https://github.com/pdaether/dropblockeditor",
     "license": "MIT",
     "authors": [
+        {
+            "name": "Patrick Dahse",
+            "email": "public@pd-digital.de",
+            "role": "Developer"
+        },
         {
             "name": "Jeffrey van Rossum",
             "email": "jeffrey@vanrossum.dev",
@@ -17,31 +22,31 @@
     ],
     "require": {
         "php": "^8.4",
-        "illuminate/contracts": "^10.0|^11.0",
+        "illuminate/contracts": "^10.0|^11.0|^12.0",
         "livewire/livewire": "^3.3",
         "spatie/laravel-package-tools": "^1.13.0"
     },
     "require-dev": {
         "larastan/larastan": "^2.9",
         "laravel/pint": "^1.0",
-        "orchestra/testbench": "^8.0|^9.0",
-        "pestphp/pest": "^2.34",
-        "pestphp/pest-plugin-laravel": "^2.0",
+        "orchestra/testbench": "^8.0|^9.0|^10.0",
+        "pestphp/pest": "^2.34|^3.7",
+        "pestphp/pest-plugin-laravel": "^2.0|^3.1",
         "phpstan/extension-installer": "^1.1",
-        "phpstan/phpstan-deprecation-rules": "^1.0",
-        "phpstan/phpstan-phpunit": "^1.0",
-        "phpunit/phpunit": "^10.4",
+        "phpstan/phpstan-deprecation-rules": "^1.0|^2.0",
+        "phpstan/phpstan-phpunit": "^1.0|^2.0",
+        "phpunit/phpunit": "^10.4|^11.5.3",
         "spatie/laravel-ray": "^1.28",
         "spatie/x-ray": "^1.1"
     },
     "autoload": {
         "psr-4": {
-            "Jeffreyvr\\DropBlockEditor\\": "src"
+            "Pdaether\\DropBlockEditor\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Jeffreyvr\\DropBlockEditor\\Tests\\": "tests"
+            "Pdaether\\DropBlockEditor\\Tests\\": "tests"
         }
     },
     "scripts": {
@@ -61,10 +66,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Jeffreyvr\\DropBlockEditor\\DropBlockEditorServiceProvider"
+                "Pdaether\\DropBlockEditor\\DropBlockEditorServiceProvider"
             ],
             "aliases": {
-                "DropBlockEditor": "Jeffreyvr\\DropBlockEditor\\Facades\\DropBlockEditor"
+                "DropBlockEditor": "Pdaether\\DropBlockEditor\\Facades\\DropBlockEditor"
             }
         }
     },

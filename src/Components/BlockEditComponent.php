@@ -1,6 +1,6 @@
 <?php
 
-namespace Jeffreyvr\DropBlockEditor\Components;
+namespace Pdaether\DropBlockEditor\Components;
 
 use Livewire\Component;
 

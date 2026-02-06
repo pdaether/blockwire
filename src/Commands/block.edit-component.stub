@@ -2,7 +2,7 @@
 
 namespace [namespace];
 
-use Jeffreyvr\DropBlockEditor\Blocks\Block;
+use Pdaether\DropBlockEditor\Blocks\Block;
 
 class [name] extends Block
 {

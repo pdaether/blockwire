@@ -1,6 +1,6 @@
 <?php
 
-namespace Jeffreyvr\DropBlockEditor\Commands;
+namespace Pdaether\DropBlockEditor\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;

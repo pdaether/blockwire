@@ -1,10 +1,10 @@
 <?php
 
-namespace Jeffreyvr\DropBlockEditor\Components;
+namespace Pdaether\DropBlockEditor\Components;
 
 use Illuminate\Support\Str;
-use Jeffreyvr\DropBlockEditor\Blocks\Block;
-use Jeffreyvr\DropBlockEditor\Parsers\Parse;
+use Pdaether\DropBlockEditor\Blocks\Block;
+use Pdaether\DropBlockEditor\Parsers\Parse;
 use Livewire\Component;
 
 class DropBlockEditor extends Component

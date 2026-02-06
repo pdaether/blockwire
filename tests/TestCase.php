@@ -1,13 +1,13 @@
 <?php
 
-namespace Jeffreyvr\DropBlockEditor\Tests;
+namespace Pdaether\DropBlockEditor\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Jeffreyvr\DropBlockEditor\DropBlockEditor;
-use Jeffreyvr\DropBlockEditor\DropBlockEditorServiceProvider;
 use Livewire\Livewire;
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
+use Pdaether\DropBlockEditor\DropBlockEditor;
+use Pdaether\DropBlockEditor\DropBlockEditorServiceProvider;
 
 class TestCase extends Orchestra
 {
@@ -16,7 +16,7 @@ class TestCase extends Orchestra
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'Jeffreyvr\\DropBlockEditor\\Database\\Factories\\'.class_basename($modelName).'Factory'
+            fn (string $modelName) => 'Pdaether\\DropBlockEditor\\Database\\Factories\\'.class_basename($modelName).'Factory'
         );
 
         $this

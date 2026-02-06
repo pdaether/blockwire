@@ -2,7 +2,7 @@
 
 namespace [namespace];
 
-use Jeffreyvr\DropBlockEditor\Components\BlockEditComponent;
+use Pdaether\DropBlockEditor\Components\BlockEditComponent;
 
 class [name] extends BlockEditComponent
 {

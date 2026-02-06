@@ -1,6 +1,6 @@
 <?php
 
-namespace Jeffreyvr\DropBlockEditor\Blocks;
+namespace Pdaether\DropBlockEditor\Blocks;
 
 use Illuminate\View\View;
 

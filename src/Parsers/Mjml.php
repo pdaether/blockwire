@@ -1,10 +1,10 @@
 <?php
 
-namespace Jeffreyvr\DropBlockEditor\Parsers;
+namespace Pdaether\DropBlockEditor\Parsers;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Http;
-use Jeffreyvr\DropBlockEditor\Blocks\Block;
+use Pdaether\DropBlockEditor\Blocks\Block;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 

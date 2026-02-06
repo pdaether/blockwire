@@ -1,6 +1,6 @@
 <?php
 
-namespace Jeffreyvr\DropBlockEditor\Parsers;
+namespace Pdaether\DropBlockEditor\Parsers;
 
 use Illuminate\Support\Facades\Blade;
 

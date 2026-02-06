@@ -1,7 +1,7 @@
 <?php
 
-use Jeffreyvr\DropBlockEditor\Components\DropBlockEditor;
 use Livewire\Livewire;
+use Pdaether\DropBlockEditor\Components\DropBlockEditor;
 
 it('can render the editor', function () {
     Livewire::test(DropBlockEditor::class, [
@@ -58,7 +58,7 @@ it('can delete a block', function () {
 it('sets initial active blocks when set', function () {
     Livewire::test(DropBlockEditor::class, [
         'title' => 'The name of the campaign',
-        'activeBlocks' => json_decode('[{"data":{"title":"Picking my way out of here", "content": "One Song At A Time"},"class":"Jeffreyvr\\\\DropBlockEditor\\\\Blocks\\\\Example"}]', true),
+        'activeBlocks' => json_decode('[{"data":{"title":"Picking my way out of here", "content": "One Song At A Time"},"class":"Pdaether\\\\DropBlockEditor\\\\Blocks\\\\Example"}]', true),
     ])
         ->assertSee('One Song At A Time');
 });
