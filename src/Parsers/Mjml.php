@@ -26,7 +26,7 @@ class Mjml extends Parser implements ParserInterface
                     $this->setBlockArguments('before', ['before' => '<mj-raw>', 'after' => '</mj-raw>'], 'wrap');
                     $this->setBlockArguments('after', ['before' => '<mj-raw>', 'after' => '</mj-raw>'], 'wrap');
 
-                    $view = $this->prepareBlockForEditor(['id' => $key, 'blockHtml' => $view]);
+                    $view = $this->prepareBlockForEditor(['id' => $key, 'blockHtml' => $view, 'title' => $block->getTitle()]);
                 }
 
                 return Blade::render($view, $block->getData());

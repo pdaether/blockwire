@@ -20,7 +20,7 @@ class Html extends Parser implements ParserInterface
                 $view = $block->makeView();
 
                 if ($this->context === 'editor') {
-                    $view = $this->prepareBlockForEditor(['id' => $key, 'blockHtml' => $view]);
+                    $view = $this->prepareBlockForEditor(['id' => $key, 'blockHtml' => $view, 'title' => $block->getTitle()]);
                 }
 
                 return Blade::render($view, $block->getData());
