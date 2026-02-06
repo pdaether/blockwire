@@ -1,9 +1,9 @@
 <?php
 
-namespace Pdaether\DropBlockEditor\Parsers;
+namespace Pdaether\BlockWire\Parsers;
 
 use Illuminate\Support\Facades\Blade;
-use Pdaether\DropBlockEditor\Blocks\Block;
+use Pdaether\BlockWire\Blocks\Block;
 
 class Html extends Parser implements ParserInterface
 {

@@ -7,7 +7,7 @@ export default defineConfig({
     lib: {
       entry: './resources/js/editor.js',
       formats: ['iife'],
-      name: 'DropBlockEditor',
+      name: 'BlockWire',
       fileName: () => 'editor.js',
       cssFileName: 'editor',
     },

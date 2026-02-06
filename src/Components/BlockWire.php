@@ -1,19 +1,19 @@
 <?php
 
-namespace Pdaether\DropBlockEditor\Components;
+namespace Pdaether\BlockWire\Components;
 
 use Illuminate\Support\Str;
 use Livewire\Component;
-use Pdaether\DropBlockEditor\Blocks\Block;
-use Pdaether\DropBlockEditor\Parsers\Parse;
+use Pdaether\BlockWire\Blocks\Block;
+use Pdaether\BlockWire\Parsers\Parse;
 
-class DropBlockEditor extends Component
+class BlockWire extends Component
 {
     public $initialRender = true;
 
     public $title;
 
-    public $base = 'dropblockeditor::base';
+    public $base = 'blockwire::base';
 
     public $hash;
 
@@ -176,13 +176,13 @@ class DropBlockEditor extends Component
 
     public function mount(): void
     {
-        $this->parsers = config('dropblockeditor.parsers', []);
+        $this->parsers = config('blockwire.parsers', []);
 
-        $this->blocks = collect(! is_null($this->blocks) ? $this->blocks : config('dropblockeditor.blocks', []))
+        $this->blocks = collect(! is_null($this->blocks) ? $this->blocks : config('blockwire.blocks', []))
             ->map(fn ($block) => (new $block)->toArray())
             ->all();
 
-        $this->buttons = ! is_null($this->buttons) ? $this->buttons : config('dropblockeditor.buttons', []);
+        $this->buttons = ! is_null($this->buttons) ? $this->buttons : config('blockwire.buttons', []);
 
         $this->updateHash();
 
@@ -245,7 +245,7 @@ class DropBlockEditor extends Component
 
         $this->initialRender = false;
 
-        return view('dropblockeditor::editor', [
+        return view('blockwire::editor', [
             'activeBlock' => $this->getActiveBlock(),
         ]);
     }

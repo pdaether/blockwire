@@ -8,11 +8,11 @@
 
     <div
         x-cloak
-        x-data="dropblockeditor()"
-        class="dropblockeditor flex flex-col min-h-screen bg-gray-100">
-        <div class="{{ config('dropblockeditor.brand.colors.topbar_bg', 'bg-white') }} px-5 py-5 border-b text-white flex flex-initial">
+        x-data="blockwire()"
+        class="blockwire flex flex-col min-h-screen bg-gray-100">
+        <div class="{{ config('blockwire.brand.colors.topbar_bg', 'bg-white') }} px-5 py-5 border-b text-white flex flex-initial">
             <div class="flex items-center flex-1">
-                @if($logo = config('dropblockeditor.brand.logo', false))
+                @if($logo = config('blockwire.brand.logo', false))
                     <div class="mr-2">{!! $logo !!}</div>
                 @endif
                 <div>

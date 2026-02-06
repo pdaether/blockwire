@@ -1,6 +1,6 @@
 <?php
 
-namespace Pdaether\DropBlockEditor\Parsers;
+namespace Pdaether\BlockWire\Parsers;
 
 use Illuminate\Support\Facades\Blade;
 
@@ -54,7 +54,7 @@ abstract class Parser
 
     public function prepareBlockForEditor(array $args)
     {
-        $activeBorderColor = config('dropblockeditor.brand.colors.active_border', 'blue-500');
+        $activeBorderColor = config('blockwire.brand.colors.active_border', 'blue-500');
 
         $colorMap = [
             'blue-500' => '#3b82f6',

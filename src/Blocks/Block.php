@@ -1,6 +1,6 @@
 <?php
 
-namespace Pdaether\DropBlockEditor\Blocks;
+namespace Pdaether\BlockWire\Blocks;
 
 use Illuminate\View\View;
 

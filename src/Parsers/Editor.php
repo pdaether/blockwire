@@ -1,6 +1,6 @@
 <?php
 
-namespace Pdaether\DropBlockEditor\Parsers;
+namespace Pdaether\BlockWire\Parsers;
 
 use DOMDocument;
 
@@ -20,7 +20,7 @@ class Editor extends Parser implements ParserInterface
 
         libxml_use_internal_errors($internalErrors);
 
-        $configCss = config('dropblockeditor.preview_css');
+        $configCss = config('blockwire.preview_css');
 
         if ($configCss && file_exists(public_path($configCss))) {
             $editorCss = file_get_contents(public_path($configCss));

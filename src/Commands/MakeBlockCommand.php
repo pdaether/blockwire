@@ -1,6 +1,6 @@
 <?php
 
-namespace Pdaether\DropBlockEditor\Commands;
+namespace Pdaether\BlockWire\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 
 class MakeBlockCommand extends Command
 {
-    public $signature = 'dropblockeditor:make {name} {--without-edit-component}';
+    public $signature = 'blockwire:make {name} {--without-edit-component}';
 
     public $description = 'Create a new editor block';
 
@@ -40,7 +40,7 @@ class MakeBlockCommand extends Command
 
     public function getBlockSourceFilePath(): string
     {
-        return base_path('app/DropBlockEditor/Blocks').'/'.$this->getSingularClassName($this->argument('name')).'.php';
+        return base_path('app/BlockWire/Blocks').'/'.$this->getSingularClassName($this->argument('name')).'.php';
     }
 
     public function getEditComponentSourceFilePath(): string
@@ -52,7 +52,7 @@ class MakeBlockCommand extends Command
 
     public function isFirstTimeMakingABlock(): bool
     {
-        return ! File::isDirectory(base_path('app/DropBlockEditor/Blocks'));
+        return ! File::isDirectory(base_path('app/BlockWire/Blocks'));
     }
 
     public function handle(): int
@@ -71,7 +71,7 @@ class MakeBlockCommand extends Command
         $this->makeDirectory(dirname($blockPath));
 
         File::put($blockPath, $this->getStubContents(__DIR__.'/'.($withoutEditComponent ? 'block.stub' : 'block.edit-component.stub'), [
-            'namespace' => 'App\\DropBlockEditor\\Blocks',
+            'namespace' => 'App\\BlockWire\\Blocks',
             'name' => Str::studly($this->argument('name')),
             'edit-component-name' => Str::kebab($this->argument('name')),
         ]));
@@ -100,7 +100,7 @@ class MakeBlockCommand extends Command
         }
 
         if ($isFirstBlock) {
-            $this->line("\n<options=bold>Awesome, your first DropBlockEditor block has been created!</> 🎉\n");
+            $this->line("\n<options=bold>Awesome, your first BlockWire block has been created!</> 🎉\n");
         }
 
         return self::SUCCESS;

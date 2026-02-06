@@ -1,6 +1,6 @@
 import '../css/editor.css';
 
-window.dropblockeditor = (config) => {
+window.blockwire = (config) => {
     return {
         iframe: null,
 

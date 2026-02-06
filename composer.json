@@ -1,12 +1,12 @@
 {
-    "name": "pdaether/dropblockeditor",
-    "description": "A simple block editor made with Livewire. Maintained fork of jeffreyvr/dropblockeditor",
+    "name": "pdaether/blockwire",
+    "description": "A block editor made with Livewire. Maintained fork of jeffreyvr/blockwire",
     "keywords": [
         "pdaether",
         "laravel",
-        "dropblockeditor"
+        "blockwire"
     ],
-    "homepage": "https://github.com/pdaether/dropblockeditor",
+    "homepage": "https://github.com/pdaether/blockwire",
     "license": "MIT",
     "authors": [
         {
@@ -41,12 +41,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Pdaether\\DropBlockEditor\\": "src"
+            "Pdaether\\BlockWire\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Pdaether\\DropBlockEditor\\Tests\\": "tests"
+            "Pdaether\\BlockWire\\Tests\\": "tests"
         }
     },
     "scripts": {
@@ -66,10 +66,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Pdaether\\DropBlockEditor\\DropBlockEditorServiceProvider"
+                "Pdaether\\BlockWire\\BlockWireServiceProvider"
             ],
             "aliases": {
-                "DropBlockEditor": "Pdaether\\DropBlockEditor\\Facades\\DropBlockEditor"
+                "BlockWire": "Pdaether\\BlockWire\\Facades\\BlockWire"
             }
         }
     },

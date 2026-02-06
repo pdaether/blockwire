@@ -1,13 +1,13 @@
 <?php
 
-namespace Pdaether\DropBlockEditor\Tests;
+namespace Pdaether\BlockWire\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Livewire\Livewire;
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Pdaether\DropBlockEditor\DropBlockEditor;
-use Pdaether\DropBlockEditor\DropBlockEditorServiceProvider;
+use Pdaether\BlockWire\BlockWire;
+use Pdaether\BlockWire\BlockWireServiceProvider;
 
 class TestCase extends Orchestra
 {
@@ -16,7 +16,7 @@ class TestCase extends Orchestra
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'Pdaether\\DropBlockEditor\\Database\\Factories\\'.class_basename($modelName).'Factory'
+            fn (string $modelName) => 'Pdaether\\BlockWire\\Database\\Factories\\'.class_basename($modelName).'Factory'
         );
 
         $this
@@ -27,13 +27,13 @@ class TestCase extends Orchestra
     {
         return [
             LivewireServiceProvider::class,
-            DropBlockEditorServiceProvider::class,
+            BlockWireServiceProvider::class,
         ];
     }
 
     private function registerLivewireComponents(): self
     {
-        Livewire::component('dropblockeditor', DropBlockEditor::class);
+        Livewire::component('blockwire', BlockWire::class);
 
         return $this;
     }

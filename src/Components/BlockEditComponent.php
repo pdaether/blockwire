@@ -1,6 +1,6 @@
 <?php
 
-namespace Pdaether\DropBlockEditor\Components;
+namespace Pdaether\BlockWire\Components;
 
 use Livewire\Component;
 

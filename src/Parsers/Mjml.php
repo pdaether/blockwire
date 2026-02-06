@@ -1,10 +1,10 @@
 <?php
 
-namespace Pdaether\DropBlockEditor\Parsers;
+namespace Pdaether\BlockWire\Parsers;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Http;
-use Pdaether\DropBlockEditor\Blocks\Block;
+use Pdaether\BlockWire\Blocks\Block;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
@@ -39,7 +39,7 @@ class Mjml extends Parser implements ParserInterface
 
         $content = $this->createBaseView(['slot' => $content]);
 
-        $method = config('dropblockeditor.mjml.method');
+        $method = config('blockwire.mjml.method');
 
         if ($method === 'api') {
             $this->output = $this->parseWithApi($content);
@@ -53,8 +53,8 @@ class Mjml extends Parser implements ParserInterface
     public function parseWithNode($content)
     {
         $process = new Process([
-            config('dropblockeditor.node_binary'),
-            config('dropblockeditor.mjml.binary'),
+            config('blockwire.node_binary'),
+            config('blockwire.mjml.binary'),
             '--noStdoutFileComment',
             '--stdin',
             '--s',
@@ -73,8 +73,8 @@ class Mjml extends Parser implements ParserInterface
 
     public function parseWithApi($content)
     {
-        $mjml = Http::withBasicAuth(config('dropblockeditor.mjml.api.username'), config('dropblockeditor.mjml.api.password'))
-            ->post(config('dropblockeditor.mjml.api.url'), [
+        $mjml = Http::withBasicAuth(config('blockwire.mjml.api.username'), config('blockwire.mjml.api.password'))
+            ->post(config('blockwire.mjml.api.url'), [
                 'mjml' => $content,
             ])
             ->json();

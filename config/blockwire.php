@@ -35,12 +35,12 @@ return [
     |
     | Here you may register the blocks that should be available in the editor by
     | default. However, you choose to override available blocks by declaring
-    | them in the in the livewire dropblockeditor component.
+    | them in the in the livewire blockwire component.
     |
     */
 
     'blocks' => [
-        Pdaether\DropBlockEditor\Blocks\Example::class,
+        Pdaether\BlockWire\Blocks\Example::class,
     ],
 
     /*
@@ -50,12 +50,12 @@ return [
     |
     | Here you may register the buttons that should be available in the editor by
     | default. However, you choose to override available buttons by declaring
-    | them in the in the livewire dropblockeditor component.
+    | them in the in the livewire blockwire component.
     |
     */
 
     'buttons' => [
-        'dropblockeditor-example-button',
+        'blockwire-example-button',
     ],
 
     /*
@@ -69,9 +69,9 @@ return [
     */
 
     'parsers' => [
-        // Pdaether\DropBlockEditor\Parsers\Mjml::class,
-        Pdaether\DropBlockEditor\Parsers\Html::class,
-        Pdaether\DropBlockEditor\Parsers\Editor::class,
+        // Pdaether\BlockWire\Parsers\Mjml::class,
+        Pdaether\BlockWire\Parsers\Html::class,
+        Pdaether\BlockWire\Parsers\Editor::class,
     ],
 
     /*
@@ -86,16 +86,16 @@ return [
     */
 
     'mjml' => [
-        'method' => env('DROPBLOCKEDITOR_MJML_METHOD', 'api'),
+        'method' => env('BLOCKWIRE_MJML_METHOD', 'api'),
 
-        'binary' => env('DROPBLOCKEDITOR_MJML_BINARY', '../node_modules/.bin/mjml'),
+        'binary' => env('BLOCKWIRE_MJML_BINARY', '../node_modules/.bin/mjml'),
 
         'api' => [
-            'url' => env('DROPBLOCKEDITOR_MJML_API_URL', 'https://api.mjml.io/v1/render'),
-            'username' => env('DROPBLOCKEDITOR_MJML_API_USERNAME'),
-            'password' => env('DROPBLOCKEDITOR_MJML_API_PASSWORD'),
+            'url' => env('BLOCKWIRE_MJML_API_URL', 'https://api.mjml.io/v1/render'),
+            'username' => env('BLOCKWIRE_MJML_API_USERNAME'),
+            'password' => env('BLOCKWIRE_MJML_API_PASSWORD'),
         ],
     ],
 
-    'node_binary' => env('DROPBLOCKEDITOR_NODE_BINARY', '/usr/local/bin/node'),
+    'node_binary' => env('BLOCKWIRE_NODE_BINARY', '/usr/local/bin/node'),
 ];

@@ -1,6 +1,6 @@
-# DropBlockEditor Improvement Plan
+# BlockWire Improvement Plan
 
-> This document outlines the incremental improvement plan for the DropBlockEditor package, focusing on DX improvements and feature additions for website building use cases.
+> This document outlines the incremental improvement plan for the BlockWire package, focusing on DX improvements and feature additions for website building use cases.
 
 ## Project Context
 
@@ -34,7 +34,7 @@
 **Files to Modify:**
 - `src/Contracts/BlockInterface.php` (new)
 - `src/Blocks/Block.php`
-- `src/Components/DropBlockEditor.php`
+- `src/Components/BlockWire.php`
 
 **Testing:**
 - Ensure all example blocks still work
@@ -109,7 +109,7 @@ public function schema(): BlockSchema {
 **Files to Modify:**
 - `src/Blocks/Block.php`
 - `src/Components/BlockEditComponent.php`
-- `src/Components/DropBlockEditor.php`
+- `src/Components/BlockWire.php`
 
 **Testing:**
 - Test validation rules
@@ -138,7 +138,7 @@ public function schema(): BlockSchema {
 
 **Files to Modify:**
 - `src/Parsers/Html.php`
-- `src/Components/DropBlockEditor.php`
+- `src/Components/BlockWire.php`
 
 **Testing:**
 - Test missing block scenarios
@@ -208,7 +208,7 @@ class TwoColumnLayout extends ContainerBlock
 
 **Files to Modify:**
 - `src/Parsers/Html.php` (handle nested rendering)
-- `src/Components/DropBlockEditor.php` (nested drag-drop)
+- `src/Components/BlockWire.php` (nested drag-drop)
 - `resources/js/editor.js` (slot-aware dragging)
 
 ---
@@ -223,8 +223,8 @@ class TwoColumnLayout extends ContainerBlock
 - Validation on block insertion
 
 **Files to Modify:**
-- `config/dropblockeditor.php`
-- `src/Components/DropBlockEditor.php`
+- `config/blockwire.php`
+- `src/Components/BlockWire.php`
 - `resources/js/editor.js`
 - `resources/views/editor.blade.php`
 
@@ -298,7 +298,7 @@ public function schema(): BlockSchema {
 
 **Files to Modify:**
 - `src/Parsers/Html.php` (generate responsive CSS)
-- `src/Components/DropBlockEditor.php`
+- `src/Components/BlockWire.php`
 - `resources/views/editor.blade.php`
 - `resources/js/editor.js`
 
@@ -524,7 +524,7 @@ public function variants(): array
 
 ```
 config/
-  dropblockeditor.php          # Configuration
+  blockwire.php          # Configuration
 
 src/
   Blocks/
@@ -533,7 +533,7 @@ src/
     Example.php                 # Example block
   Components/
     BlockEditComponent.php      # Edit component base
-    DropBlockEditor.php         # Main editor component
+    BlockWire.php         # Main editor component
     Example.php                 # Example edit component
   Contracts/
     BlockInterface.php          # (PHASE 1) Block contract
@@ -574,7 +574,7 @@ tests/
 
 - **Dependencies:** Each phase builds on previous phases
 - **Breaking Changes:** Document any breaking changes in CHANGELOG.md
-- **Documentation:** Update docs at dropblockeditor.com when features are stable
+- **Documentation:** Update docs at blockwire.com when features are stable
 - **Versioning:** Consider semantic versioning after Phase 1 completion
 
 ---

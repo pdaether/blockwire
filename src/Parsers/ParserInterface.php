@@ -1,6 +1,6 @@
 <?php
 
-namespace Pdaether\DropBlockEditor\Parsers;
+namespace Pdaether\BlockWire\Parsers;
 
 interface ParserInterface
 {

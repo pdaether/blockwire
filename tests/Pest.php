@@ -1,5 +1,5 @@
 <?php
 
-use Pdaether\DropBlockEditor\Tests\TestCase;
+use Pdaether\BlockWire\Tests\TestCase;
 
 uses(TestCase::class)->in(__DIR__);

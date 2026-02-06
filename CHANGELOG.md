@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to `dropblockeditor` will be documented in this file.
+All notable changes to `blockwire` will be documented in this file.
 
 ## Unreleased
 
@@ -11,7 +11,7 @@ All notable changes to `dropblockeditor` will be documented in this file.
 
 ## 0.3.1 - 2024-03-06
 
-- hide blocks sidebar with x-show to prevent dom changes (related to https://github.com/jeffreyvr/dropblockeditor/discussions/30)
+- hide blocks sidebar with x-show to prevent dom changes (related to https://github.com/jeffreyvr/blockwire/discussions/30)
 
 ## 0.3.0 - 2023-11-17
 
@@ -22,8 +22,8 @@ All notable changes to `dropblockeditor` will be documented in this file.
 
 - upgrade to Livewire v3
 - requires php 8.1 or higher
-- `php artisan dropblockeditor:make` puts Livewire component in `App\Livewire` namespace unless otherwise configured
-- `php artisan dropblockeditor:make` now assumes you want an edit component by default
+- `php artisan blockwire:make` puts Livewire component in `App\Livewire` namespace unless otherwise configured
+- `php artisan blockwire:make` now assumes you want an edit component by default
 
 ## 0.1.3 - 2023-06-23
 

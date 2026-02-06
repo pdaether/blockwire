@@ -1,31 +1,31 @@
 <?php
 
 use Livewire\Livewire;
-use Pdaether\DropBlockEditor\Components\DropBlockEditor;
+use Pdaether\BlockWire\Components\BlockWire;
 
 it('can render the editor', function () {
-    Livewire::test(DropBlockEditor::class, [
+    Livewire::test(BlockWire::class, [
         'title' => 'The name of the campaign',
     ])
         ->assertSet('title', 'The name of the campaign');
 });
 
 it('displays the example button', function () {
-    Livewire::test(DropBlockEditor::class, [
+    Livewire::test(BlockWire::class, [
         'title' => 'The name of the campaign',
     ])
         ->assertSee('Save');
 });
 
 it('displays the example block', function () {
-    Livewire::test(DropBlockEditor::class, [
+    Livewire::test(BlockWire::class, [
         'title' => 'The name of the campaign',
     ])
         ->assertSee('Example');
 });
 
 it('displays the active block', function () {
-    Livewire::test(DropBlockEditor::class, [
+    Livewire::test(BlockWire::class, [
         'title' => 'The name of the campaign',
     ])
         ->call('insertBlock', 0)
@@ -33,7 +33,7 @@ it('displays the active block', function () {
 });
 
 it('can undo and redo a change', function () {
-    Livewire::test(DropBlockEditor::class, [
+    Livewire::test(BlockWire::class, [
         'title' => 'The name of the campaign',
     ])
         ->call('insertBlock', 0)
@@ -46,7 +46,7 @@ it('can undo and redo a change', function () {
 });
 
 it('can delete a block', function () {
-    Livewire::test(DropBlockEditor::class, [
+    Livewire::test(BlockWire::class, [
         'title' => 'The name of the campaign',
     ])
         ->call('insertBlock', 0)
@@ -56,9 +56,9 @@ it('can delete a block', function () {
 });
 
 it('sets initial active blocks when set', function () {
-    Livewire::test(DropBlockEditor::class, [
+    Livewire::test(BlockWire::class, [
         'title' => 'The name of the campaign',
-        'activeBlocks' => json_decode('[{"data":{"title":"Picking my way out of here", "content": "One Song At A Time"},"class":"Pdaether\\\\DropBlockEditor\\\\Blocks\\\\Example"}]', true),
+        'activeBlocks' => json_decode('[{"data":{"title":"Picking my way out of here", "content": "One Song At A Time"},"class":"Pdaether\\\\BlockWire\\\\Blocks\\\\Example"}]', true),
     ])
         ->assertSee('One Song At A Time');
 });

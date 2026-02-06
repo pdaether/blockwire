@@ -2,7 +2,7 @@
 
 namespace [namespace];
 
-use Pdaether\DropBlockEditor\Components\BlockEditComponent;
+use Pdaether\BlockWire\Components\BlockEditComponent;
 
 class [name] extends BlockEditComponent
 {
