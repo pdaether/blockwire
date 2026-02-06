@@ -125,9 +125,15 @@ class DropBlockEditor extends Component
         $this->recordInHistory();
     }
 
-    public function cloneBlock(): void
+    public function cloneBlock($blockId = null): void
     {
-        $clone = $this->activeBlocks[$this->activeBlockIndex];
+        $index = $blockId !== null ? $blockId : $this->activeBlockIndex;
+
+        if (! isset($this->activeBlocks[$index])) {
+            return;
+        }
+
+        $clone = $this->activeBlocks[$index];
 
         $this->activeBlocks[] = $clone;
 
@@ -136,13 +142,19 @@ class DropBlockEditor extends Component
         $this->recordInHistory();
     }
 
-    public function deleteBlock(): void
+    public function deleteBlock($blockId = null): void
     {
-        $activeBlockId = $this->activeBlockIndex;
+        $index = $blockId !== null ? $blockId : $this->activeBlockIndex;
+
+        if (! isset($this->activeBlocks[$index])) {
+            return;
+        }
 
         $this->activeBlockIndex = false;
 
-        unset($this->activeBlocks[$activeBlockId]);
+        unset($this->activeBlocks[$index]);
+
+        $this->activeBlocks = array_values($this->activeBlocks);
 
         $this->recordInHistory();
     }

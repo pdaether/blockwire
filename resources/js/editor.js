@@ -35,7 +35,6 @@ window.dropblockeditor = (config) => {
             this.iframe.addEventListener("load", () => {
                 this.initListeners()
 
-                // Reapply active class to the currently active block after iframe reloads
                 if (this.activeBlockId !== null && this.activeBlockId !== false) {
                     let root = this.iframe.contentWindow.document;
                     let activeBlock = root.querySelector('[drag-item][data-block="' + this.activeBlockId + '"]');
@@ -50,7 +49,6 @@ window.dropblockeditor = (config) => {
                 this.iframe.contentWindow.scrollTo(0, this.lastTopPos)
             })
 
-            // Listen for active block changes
             Livewire.on('activeBlockIndexChanged', (data) => {
                 this.activeBlockId = data;
 
@@ -125,19 +123,38 @@ window.dropblockeditor = (config) => {
             })
 
             root.querySelectorAll('[drag-item]').forEach(el => {
+                let cloneBtn = el.querySelector('.action-clone');
+                if (cloneBtn) {
+                    cloneBtn.addEventListener('click', e => {
+                        e.stopPropagation();
+                        let blockId = e.target.closest('[drag-item]').dataset.block;
+                        this.component().call('cloneBlock', blockId);
+                    });
+                }
+
+                let deleteBtn = el.querySelector('.action-delete');
+                if (deleteBtn) {
+                    deleteBtn.addEventListener('click', e => {
+                        e.stopPropagation();
+                        let blockId = e.target.closest('[drag-item]').dataset.block;
+                        this.component().call('deleteBlock', blockId);
+                    });
+                }
+
                 el.addEventListener('click', e => {
+                    if (e.target.closest('.action-clone') || e.target.closest('.action-delete')) {
+                        return;
+                    }
+
                     let dragItem = e.target.closest('[drag-item]');
                     let blockId = dragItem.dataset.block;
 
-                    // Store the active block ID
                     this.activeBlockId = blockId;
 
-                    // Remove active class from all blocks
                     root.querySelectorAll('[drag-item]').forEach(item => {
                         item.classList.remove('active');
                     });
 
-                    // Add active class to clicked block
                     dragItem.classList.add('active');
 
                     Livewire.dispatch('blockEditComponentSelected', {
