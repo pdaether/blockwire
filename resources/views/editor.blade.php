@@ -61,7 +61,7 @@
 
         <div class="flex flex-initial h-full grow">
 
-            <div class="relative flex-1 flex justify-center">
+            <div class="relative flex-1 flex justify-center overflow-x-auto min-w-0">
                 <iframe id="frame" srcdoc="{{ $result }}" class="h-full" :class="device === 'mobile' ? 'w-[320px]' : device === 'tablet' ? 'w-[768px]' : 'w-full'"></iframe>
                 <div wire:loading class="absolute right-5 bottom-5">
                     <svg class="animate-spin h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
