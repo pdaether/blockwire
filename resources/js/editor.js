@@ -1,3 +1,5 @@
+import '../css/editor.css';
+
 window.dropblockeditor = (config) => {
     return {
         iframe: null,
