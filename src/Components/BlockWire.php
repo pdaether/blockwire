@@ -199,6 +199,8 @@ class BlockWire extends Component
             ->all();
 
         $this->dispatch('editorIsUpdated', $this->updateProperties());
+
+        $this->recordInHistory();
     }
 
     public function insertBlock(int $id, ?int $index = null, ?string $placement = null): void
