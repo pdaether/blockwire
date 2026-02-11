@@ -11,12 +11,12 @@ class [name] extends Block implements BlockInterface
 
     public array $data = [];
 
-    public string $blockEditComponent = '[edit-component-name]';
+    public string $blockEditComponent = \[edit-component-class]::class;
 
     public function render(): string
     {
         return <<<'blade'
-            <div></div>
+            <div>[name]</div>
         blade;
     }
 }

@@ -58,7 +58,7 @@ return [
     */
 
     'buttons' => [
-        'blockwire-example-button',
+        \Pdaether\BlockWire\Components\ExampleButton::class,
     ],
 
     /*

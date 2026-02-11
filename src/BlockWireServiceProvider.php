@@ -6,8 +6,6 @@ use Illuminate\Support\Facades\View;
 use Livewire\Livewire;
 use Pdaether\BlockWire\Commands\MakeBlockCommand;
 use Pdaether\BlockWire\Components\BlockWire;
-use Pdaether\BlockWire\Components\Example;
-use Pdaether\BlockWire\Components\ExampleButton;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -25,8 +23,6 @@ class BlockWireServiceProvider extends PackageServiceProvider
     public function bootingPackage(): void
     {
         Livewire::component('blockwire', BlockWire::class);
-        Livewire::component('blockwire-example', Example::class);
-        Livewire::component('blockwire-example-button', ExampleButton::class);
 
         View::composer('blockwire::editor', function ($view) {
             if (config('blockwire.include_js', true)) {

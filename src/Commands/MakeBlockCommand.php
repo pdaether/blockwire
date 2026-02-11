@@ -9,9 +9,9 @@ use Illuminate\Support\Str;
 
 class MakeBlockCommand extends Command
 {
-    public string $signature = 'blockwire:make {name} {--without-edit-component}';
+    protected $signature = 'blockwire:make {name} {--without-edit-component}';
 
-    public string $description = 'Create a new editor block';
+    protected $description = 'Create a new editor block';
 
     protected function makeDirectory(string $path): string
     {
@@ -70,10 +70,14 @@ class MakeBlockCommand extends Command
 
         $this->makeDirectory(dirname($blockPath));
 
+        $studlyName = Str::studly($this->argument('name'));
+        $editComponentNamespace = config('livewire.class_namespace');
+        $editComponentClass = $editComponentNamespace.'\\'.$studlyName;
+
         File::put($blockPath, $this->getStubContents(__DIR__.'/'.($withoutEditComponent ? 'block.stub' : 'block.edit-component.stub'), [
             'namespace' => 'App\\BlockWire\\Blocks',
-            'name' => Str::studly($this->argument('name')),
-            'edit-component-name' => Str::kebab($this->argument('name')),
+            'name' => $studlyName,
+            'edit-component-class' => $editComponentClass,
         ]));
 
         $this->line("<options=bold,reverse;fg=green> Block created </> 🚀\n");
