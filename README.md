@@ -44,7 +44,7 @@ If you discover any security-related issues, please open an issue on GitHub.
 ## Credits
 
 * [Jeffrey van Rossum](https://github.com/jeffreyvr)
-* [Patrick Dahse](https://github.com/pdaether)
+* [Patrick Daether](https://github.com/pdaether)
 * [All Contributors](../../contributors)
 
 ## License

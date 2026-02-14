@@ -10,6 +10,28 @@ window.blockwire = (config) => {
 
         device: 'desktop',
 
+        desktopPreviewWidth: 1024,
+
+        sidebarVisible: true,
+
+        panelWidth: 380,
+
+        panelMinWidth: 260,
+
+        previewMinWidth: 320,
+
+        isResizingPanel: false,
+
+        movePanelResizeHandler: null,
+
+        stopPanelResizeHandler: null,
+
+        resizeWindowHandler: null,
+
+        panelWidthStorageKey: 'blockwire-panel-width',
+
+        panelWidthCustomizedStorageKey: 'blockwire-panel-width-customized',
+
         lastTopPos: 0,
 
         cursorPos: 0,
@@ -78,6 +100,19 @@ window.blockwire = (config) => {
 
             this.dropList = document.querySelector("[drop-list]");
 
+            this.restorePanelWidth();
+
+            this.$nextTick(() => {
+                this.captureDesktopPreviewWidth();
+                this.panelWidth = this.clampPanelWidth(this.panelWidth);
+            });
+
+            this.resizeWindowHandler = () => {
+                this.captureDesktopPreviewWidth();
+                this.panelWidth = this.clampPanelWidth(this.panelWidth);
+            };
+            window.addEventListener('resize', this.resizeWindowHandler);
+
             document.addEventListener('keydown', (e) => this.undo(e, this));
             document.addEventListener('keydown', (e) => this.redo(e, this));
 
@@ -117,6 +152,168 @@ window.blockwire = (config) => {
                     }
                 }
             });
+        },
+
+        restorePanelWidth() {
+            try {
+                let hasCustomWidth = window.localStorage.getItem(this.panelWidthCustomizedStorageKey);
+                if (hasCustomWidth !== '1') {
+                    return;
+                }
+
+                let storedWidth = window.localStorage.getItem(this.panelWidthStorageKey);
+                if (storedWidth === null) {
+                    return;
+                }
+
+                let parsedWidth = Number(storedWidth);
+                if (Number.isFinite(parsedWidth)) {
+                    this.panelWidth = parsedWidth;
+                }
+            } catch (e) {
+                // Ignore localStorage issues (e.g. in restricted browser contexts)
+            }
+        },
+
+        persistPanelWidth() {
+            try {
+                window.localStorage.setItem(this.panelWidthStorageKey, String(this.panelWidth));
+                window.localStorage.setItem(this.panelWidthCustomizedStorageKey, '1');
+            } catch (e) {
+                // Ignore localStorage issues (e.g. in restricted browser contexts)
+            }
+        },
+
+        captureDesktopPreviewWidth() {
+            if (!this.$refs.previewContainer) {
+                return;
+            }
+
+            let width = Math.floor(this.$refs.previewContainer.getBoundingClientRect().width);
+
+            if (width >= this.previewMinWidth) {
+                this.desktopPreviewWidth = width;
+            }
+        },
+
+        previewWidth() {
+            if (this.device === 'mobile') {
+                return 320;
+            }
+
+            if (this.device === 'tablet') {
+                return 768;
+            }
+
+            return this.desktopPreviewWidth;
+        },
+
+        panelStyle() {
+            return `width: ${this.panelWidth}px`;
+        },
+
+        clampPanelWidth(width) {
+            let maxPanelWidth = this.getPanelMaxWidth();
+            return Math.max(this.panelMinWidth, Math.min(Math.floor(width), maxPanelWidth));
+        },
+
+        getPanelMaxWidth() {
+            if (!this.$refs.workspace) {
+                return this.panelWidth;
+            }
+
+            let workspaceWidth = Math.floor(this.$refs.workspace.getBoundingClientRect().width);
+            if (workspaceWidth <= 0) {
+                return this.panelWidth;
+            }
+            let maxPanelWidth = workspaceWidth - this.previewMinWidth;
+
+            return Math.max(this.panelMinWidth, maxPanelWidth);
+        },
+
+        resizePanelBy(delta) {
+            this.panelWidth = this.clampPanelWidth(this.panelWidth + delta);
+            this.persistPanelWidth();
+        },
+
+        toggleSidebar() {
+            if (this.isResizingPanel) {
+                this.stopPanelResize();
+            }
+
+            this.sidebarVisible = !this.sidebarVisible;
+
+            if (this.sidebarVisible) {
+                this.panelWidth = this.clampPanelWidth(this.panelWidth);
+            }
+
+            this.$nextTick(() => {
+                this.captureDesktopPreviewWidth();
+            });
+        },
+
+        startPanelResize(event) {
+            if (!this.sidebarVisible) {
+                return;
+            }
+
+            event.preventDefault();
+
+            this.isResizingPanel = true;
+            document.body.style.userSelect = 'none';
+
+            this.movePanelResizeHandler = (moveEvent) => {
+                this.updatePanelWidthFromPointer(moveEvent);
+            };
+
+            this.stopPanelResizeHandler = () => {
+                this.stopPanelResize();
+            };
+
+            window.addEventListener('mousemove', this.movePanelResizeHandler);
+            window.addEventListener('touchmove', this.movePanelResizeHandler, { passive: false });
+            window.addEventListener('mouseup', this.stopPanelResizeHandler, { once: true });
+            window.addEventListener('touchend', this.stopPanelResizeHandler, { once: true });
+
+            this.updatePanelWidthFromPointer(event);
+        },
+
+        stopPanelResize() {
+            this.isResizingPanel = false;
+            document.body.style.userSelect = '';
+
+            if (this.movePanelResizeHandler) {
+                window.removeEventListener('mousemove', this.movePanelResizeHandler);
+                window.removeEventListener('touchmove', this.movePanelResizeHandler);
+                this.movePanelResizeHandler = null;
+            }
+
+            if (this.stopPanelResizeHandler) {
+                window.removeEventListener('mouseup', this.stopPanelResizeHandler);
+                window.removeEventListener('touchend', this.stopPanelResizeHandler);
+                this.stopPanelResizeHandler = null;
+            }
+        },
+
+        updatePanelWidthFromPointer(event) {
+            if (!this.$refs.workspace) {
+                return;
+            }
+
+            if (event.cancelable) {
+                event.preventDefault();
+            }
+
+            let clientX = event.touches ? event.touches[0].clientX : event.clientX;
+            if (typeof clientX !== 'number') {
+                return;
+            }
+
+            let workspaceRect = this.$refs.workspace.getBoundingClientRect();
+            let nextPanelWidth = workspaceRect.right - clientX;
+
+            this.panelWidth = this.clampPanelWidth(nextPanelWidth);
+            this.persistPanelWidth();
         },
 
         initListeners() {

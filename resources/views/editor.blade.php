@@ -73,28 +73,30 @@
                 </div>
             </div>
             <div class="flex items-center justify-end gap-2 flex-1">
-                <div class="flex gap-2 mx-4">
-                    <button wire:click="undo" @disabled(!$this->canUndo()) class="{{ $this->canUndo() ? '' : 'opacity-25' }}" aria-label="Undo change">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" />
-                        </svg>
-                    </button>
-                    <button wire:click="redo" @disabled(!$this->canRedo()) class="{{ $this->canRedo() ? '' : 'opacity-25' }}" aria-label="Redo change">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
-                        </svg>
-                    </button>
-                </div>
                 @foreach($buttons as $i => $button)
                     @livewire($button, ['properties' => $this->updateProperties()], key('button-' . $i))
                 @endforeach
+                <div class="flex items-center bg-white rounded-md border shadow-sm">
+                    <button
+                        x-on:click="toggleSidebar()"
+                        class="p-2 text-gray-800 hover:bg-gray-50"
+                        :aria-label="sidebarVisible ? 'Hide side panel' : 'Show side panel'"
+                        :title="sidebarVisible ? 'Hide side panel' : 'Show side panel'">
+                        <svg x-show="sidebarVisible" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
+                        </svg>
+                        <svg x-show="!sidebarVisible" x-cloak xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5" />
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
 
-        <div class="flex flex-initial h-full grow">
+        <div x-ref="workspace" class="flex flex-initial h-full grow min-h-0">
 
-            <div class="relative flex-1 flex justify-center overflow-x-auto min-w-0">
-                <iframe id="frame" srcdoc="{{ $result }}" class="h-full" :class="device === 'mobile' ? 'w-[320px]' : device === 'tablet' ? 'w-[768px]' : 'w-full'"></iframe>
+            <div x-ref="previewContainer" class="relative flex-1 flex justify-center overflow-x-auto min-w-0">
+                <iframe id="frame" srcdoc="{{ $result }}" class="h-full shrink-0" :style="`width: ${previewWidth()}px`"></iframe>
                 <div wire:loading class="absolute right-5 bottom-5">
                     <svg class="animate-spin h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -103,7 +105,22 @@
                 </div>
             </div>
 
-            <aside class="w-[400px] shrink-0 shadow-lg relative bg-white">
+            <button
+                type="button"
+                x-cloak
+                x-show="sidebarVisible"
+                class="w-2 shrink-0 border-l border-r border-gray-200 bg-white hover:bg-gray-100 active:bg-gray-200 cursor-col-resize"
+                @mousedown="startPanelResize($event)"
+                @touchstart="startPanelResize($event)"
+                @keydown.left.prevent="resizePanelBy(20)"
+                @keydown.right.prevent="resizePanelBy(-20)"
+                aria-label="Resize side panel"
+                aria-orientation="vertical"
+                role="separator">
+            </button>
+
+            <aside x-cloak x-show="sidebarVisible" class="shrink-0 shadow-lg relative bg-white overflow-hidden" :style="panelStyle()">
+                <div class="h-full overflow-auto">
                 <div
                     drop-list
                     x-cloak
@@ -127,7 +144,7 @@
                             @if($category)
                             <h2 class="mb-2 font-medium">{{ $category }}</h2>
                             @endif
-                            <div class="grid grid-cols-3 gap-4">
+                            <div class="grid gap-4" :class="panelWidth <= 340 ? 'grid-cols-2' : 'grid-cols-3'">
                                 @foreach($categoryBlocks as $groupedBlock)
                                     @php
                                         $i = $groupedBlock['original_index'];
@@ -154,25 +171,25 @@
                 @if($activeBlock)
                 <div class="border-b mb-4">
                     <div class="border-b bg-white flex justify-between items-center">
-                        <div class="flex items-center">
-                            <button wire:click="$set('activeBlockIndex', false)" class="p-4 text-gray-500 hover:text-gray-800 border-r">
+                        <div class="flex items-center min-w-0 flex-1">
+                            <button wire:click="$set('activeBlockIndex', false)" class="shrink-0 p-4 text-gray-500 hover:text-gray-800 border-r">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                                 </svg>
                             </button>
-                            <div class="p-4">
-                                <h2 class="font-medium flex items-center">
+                            <div class="p-4 min-w-0">
+                                <h2 class="font-medium flex items-center truncate">
                                     {{ $activeBlock->title }}
                                 </h2>
                             </div>
                         </div>
-                        <div class="flex items-center">
-                            <button wire:click="cloneBlock" aria-label="Clone" class="p-4 text-gray-500 hover:text-gray-800 border-l">
+                        <div class="flex items-center shrink-0">
+                            <button wire:click="cloneBlock" aria-label="Clone" class="shrink-0 p-4 text-gray-500 hover:text-gray-800 border-l">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75" />
                                 </svg>
                             </button>
-                            <button wire:click="deleteBlock" aria-label="Delete" class="p-4 text-gray-500 hover:text-gray-800 border-l">
+                            <button wire:click="deleteBlock" aria-label="Delete" class="shrink-0 p-4 text-gray-500 hover:text-gray-800 border-l">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                                 </svg>
@@ -194,7 +211,14 @@
                     </div>
                 </div>
                 @endif
+                </div>
             </aside>
+        </div>
+
+        <div
+            x-cloak
+            x-show="isResizingPanel"
+            class="fixed inset-0 z-40 cursor-col-resize">
         </div>
 
         <!-- JSON Source Code Modal -->
