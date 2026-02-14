@@ -13,6 +13,11 @@ class MakeBlockCommand extends Command
 
     protected $description = 'Create a new editor block';
 
+    public function getEditComponentNamespace(): string
+    {
+        return config('blockwire.edit_component_namespace', 'App\\BlockWire\\Forms');
+    }
+
     protected function makeDirectory(string $path): string
     {
         if (! File::isDirectory($path)) {
@@ -45,7 +50,7 @@ class MakeBlockCommand extends Command
 
     public function getEditComponentSourceFilePath(): string
     {
-        $path = str_replace(['App', '\\'], ['app', '/'], config('livewire.class_namespace'));
+        $path = str_replace(['App', '\\'], ['app', '/'], $this->getEditComponentNamespace());
 
         return base_path($path).'/'.$this->getSingularClassName($this->argument('name')).'.php';
     }
@@ -71,7 +76,7 @@ class MakeBlockCommand extends Command
         $this->makeDirectory(dirname($blockPath));
 
         $studlyName = Str::studly($this->argument('name'));
-        $editComponentNamespace = config('livewire.class_namespace');
+        $editComponentNamespace = $this->getEditComponentNamespace();
         $editComponentClass = $editComponentNamespace.'\\'.$studlyName;
 
         File::put($blockPath, $this->getStubContents(__DIR__.'/'.($withoutEditComponent ? 'block.stub' : 'block.edit-component.stub'), [
@@ -96,7 +101,7 @@ class MakeBlockCommand extends Command
             $this->makeDirectory(dirname($blockEditComponentPath));
 
             File::put($blockEditComponentPath, $this->getStubContents(__DIR__.'/edit-component.stub', [
-                'namespace' => config('livewire.class_namespace'),
+                'namespace' => $editComponentNamespace,
                 'name' => Str::studly($this->argument('name')),
             ]));
 
