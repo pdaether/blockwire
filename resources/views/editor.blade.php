@@ -9,8 +9,8 @@
     <div
         x-cloak
         x-data="blockwire()"
-        class="blockwire flex flex-col min-h-screen bg-gray-100">
-        <div class="{{ config('blockwire.brand.colors.topbar_bg', 'bg-white') }} px-5 py-5 border-b text-white flex flex-initial">
+        class="blockwire flex flex-col min-h-screen overflow-hidden rounded-2xl border border-gray-200 bg-gray-100 text-gray-800 shadow-sm">
+        <div class="{{ config('blockwire.brand.colors.topbar_bg', 'bg-white') }} px-5 py-4 border-b border-gray-200 flex flex-initial items-center gap-4 text-gray-700">
             <div class="flex items-center flex-1">
                 @if($logo = config('blockwire.brand.logo', false))
                     <div class="mr-2">{!! $logo !!}</div>
@@ -21,34 +21,34 @@
             </div>
             <div class="flex items-center justify-center gap-2">
                 <div class="flex items-center gap-2">
-                    <div class="flex items-center bg-white rounded-md border shadow-sm">
-                        <button x-on:click="device = 'mobile'" class="p-2 border-r" :class="device === 'mobile' ? 'text-gray-800' : 'text-gray-300'">
+                    <div class="flex items-center bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                        <button x-on:click="device = 'mobile'" class="p-2 border-r border-gray-200 transition-colors hover:bg-gray-50" :class="device === 'mobile' ? 'text-gray-800' : 'text-gray-300'">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
                             </svg>
                         </button>
 
-                        <button x-on:click="device = 'tablet'" class="p-2 border-r" :class="device === 'tablet' ? 'text-gray-800' : 'text-gray-300'">
+                        <button x-on:click="device = 'tablet'" class="p-2 border-r border-gray-200 transition-colors hover:bg-gray-50" :class="device === 'tablet' ? 'text-gray-800' : 'text-gray-300'">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5h3m-6.75 2.25h10.5a2.25 2.25 0 002.25-2.25v-15a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 4.5v15a2.25 2.25 0 002.25 2.25z" />
                             </svg>
                         </button>
 
-                        <button x-on:click="device = 'desktop'" class="p-2" :class="device === 'desktop' ? 'text-gray-800' : 'text-gray-300'">
+                        <button x-on:click="device = 'desktop'" class="p-2 transition-colors hover:bg-gray-50" :class="device === 'desktop' ? 'text-gray-800' : 'text-gray-300'">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" />
                             </svg>
                         </button>
                     </div>
 
-                    <div class="flex items-center bg-white rounded-md border shadow-sm">
-                        <button wire:click="undo" @disabled(!$this->canUndo()) class="p-2 border-r {{ $this->canUndo() ? 'text-gray-800 hover:bg-gray-50' : 'text-gray-300' }}" aria-label="Undo">
+                    <div class="flex items-center bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                        <button wire:click="undo" @disabled(!$this->canUndo()) class="p-2 border-r border-gray-200 transition-colors {{ $this->canUndo() ? 'text-gray-800 hover:bg-gray-50' : 'text-gray-300' }}" aria-label="Undo">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
                             </svg>
                         </button>
 
-                        <button wire:click="redo" @disabled(!$this->canRedo()) class="p-2 {{ $this->canRedo() ? 'text-gray-800 hover:bg-gray-50' : 'text-gray-300' }}" aria-label="Redo">
+                        <button wire:click="redo" @disabled(!$this->canRedo()) class="p-2 transition-colors {{ $this->canRedo() ? 'text-gray-800 hover:bg-gray-50' : 'text-gray-300' }}" aria-label="Redo">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 15l6-6m0 0l-6-6m6 6H9a6 6 0 000 12h3" />
                             </svg>
@@ -56,11 +56,11 @@
                     </div>
 
                     @if(config('blockwire.show_source_button', true))
-                    <div class="flex items-center bg-white rounded-md border shadow-sm">
+                    <div class="flex items-center bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
                         <button
                             x-on:click="openJsonModal()"
                             :disabled="loadingJson"
-                            class="p-2 text-gray-800 hover:bg-gray-50"
+                            class="p-2 text-gray-800 transition-colors hover:bg-gray-50"
                             :class="loadingJson ? 'opacity-50 cursor-wait' : ''"
                             aria-label="View Source Code"
                             title="View Source Code">
@@ -72,14 +72,14 @@
                     @endif
                 </div>
             </div>
-            <div class="flex items-center justify-end gap-2 flex-1">
+            <div class="flex items-center justify-end gap-2 flex-1 min-w-0">
                 @foreach($buttons as $i => $button)
                     @livewire($button, ['properties' => $this->updateProperties()], key('button-' . $i))
                 @endforeach
-                <div class="flex items-center bg-white rounded-md border shadow-sm">
+                <div class="flex items-center bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
                     <button
                         x-on:click="toggleSidebar()"
-                        class="p-2 text-gray-800 hover:bg-gray-50"
+                        class="p-2 text-gray-800 transition-colors hover:bg-gray-50"
                         :aria-label="sidebarVisible ? 'Hide side panel' : 'Show side panel'"
                         :title="sidebarVisible ? 'Hide side panel' : 'Show side panel'">
                         <svg x-show="sidebarVisible" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
@@ -93,10 +93,10 @@
             </div>
         </div>
 
-        <div x-ref="workspace" class="flex flex-initial h-full grow min-h-0">
+        <div x-ref="workspace" class="flex flex-initial h-full grow min-h-0 bg-gray-50">
 
-            <div x-ref="previewContainer" class="relative flex-1 flex justify-center overflow-x-auto min-w-0">
-                <iframe id="frame" srcdoc="{{ $result }}" class="h-full shrink-0" :style="`width: ${previewWidth()}px`"></iframe>
+            <div x-ref="previewContainer" class="relative flex flex-1 justify-center overflow-x-auto min-w-0 p-4 md:p-6">
+                <iframe id="frame" srcdoc="{{ $result }}" class="h-full shrink-0 rounded-xl border border-gray-200 bg-white shadow-sm" :style="`width: ${previewWidth()}px`"></iframe>
                 <div wire:loading class="absolute right-5 bottom-5">
                     <svg class="animate-spin h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -109,7 +109,7 @@
                 type="button"
                 x-cloak
                 x-show="sidebarVisible"
-                class="w-2 shrink-0 border-l border-r border-gray-200 bg-white hover:bg-gray-100 active:bg-gray-200 cursor-col-resize"
+                class="w-2 shrink-0 border-l border-r border-gray-200 bg-gray-50 hover:bg-gray-100 active:bg-gray-200 cursor-col-resize"
                 @mousedown="startPanelResize($event)"
                 @touchstart="startPanelResize($event)"
                 @keydown.left.prevent="resizePanelBy(20)"
@@ -119,7 +119,7 @@
                 role="separator">
             </button>
 
-            <aside x-cloak x-show="sidebarVisible" class="shrink-0 shadow-lg relative bg-white overflow-hidden" :style="panelStyle()">
+            <aside x-cloak x-show="sidebarVisible" class="shrink-0 relative bg-white overflow-hidden border-l border-gray-200" :style="panelStyle()">
                 <div class="h-full overflow-auto">
                 <div
                     drop-list
@@ -142,7 +142,7 @@
                     @foreach($blockGroups as $category => $categoryBlocks)
                         <div class="px-4 pt-4">
                             @if($category)
-                            <h2 class="mb-2 font-medium">{{ $category }}</h2>
+                            <h2 class="mb-2 text-xs font-medium uppercase tracking-wide text-gray-500">{{ $category }}</h2>
                             @endif
                             <div class="grid gap-4" :class="panelWidth <= 340 ? 'grid-cols-2' : 'grid-cols-3'">
                                 @foreach($categoryBlocks as $groupedBlock)
@@ -169,27 +169,27 @@
                 </div>
 
                 @if($activeBlock)
-                <div class="border-b mb-4">
-                    <div class="border-b bg-white flex justify-between items-center">
+                <div class="border-b border-gray-200 mb-4">
+                    <div class="border-b border-gray-200 bg-gray-50 flex justify-between items-center">
                         <div class="flex items-center min-w-0 flex-1">
-                            <button wire:click="$set('activeBlockIndex', false)" class="shrink-0 p-4 text-gray-500 hover:text-gray-800 border-r">
+                            <button wire:click="$set('activeBlockIndex', false)" class="shrink-0 p-4 text-gray-500 hover:text-gray-800 hover:bg-gray-100 border-r border-gray-200">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                                 </svg>
                             </button>
                             <div class="p-4 min-w-0">
-                                <h2 class="font-medium flex items-center truncate">
+                                <h2 class="font-semibold flex items-center truncate text-gray-800">
                                     {{ $activeBlock->title }}
                                 </h2>
                             </div>
                         </div>
                         <div class="flex items-center shrink-0">
-                            <button wire:click="cloneBlock" aria-label="Clone" class="shrink-0 p-4 text-gray-500 hover:text-gray-800 border-l">
+                            <button wire:click="cloneBlock" aria-label="Clone" class="shrink-0 p-4 text-gray-500 hover:text-gray-800 hover:bg-gray-100 border-l border-gray-200">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75" />
                                 </svg>
                             </button>
-                            <button wire:click="deleteBlock" aria-label="Delete" class="shrink-0 p-4 text-gray-500 hover:text-gray-800 border-l">
+                            <button wire:click="deleteBlock" aria-label="Delete" class="shrink-0 p-4 text-gray-500 hover:text-gray-800 hover:bg-gray-100 border-l border-gray-200">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                                 </svg>
@@ -245,9 +245,9 @@
                 x-transition:leave="transition ease-in duration-150"
                 x-transition:leave-start="opacity-100 scale-100"
                 x-transition:leave-end="opacity-0 scale-95"
-                class="relative bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[80vh] flex flex-col">
+                class="relative bg-white rounded-lg border border-gray-200 shadow-xl w-full max-w-3xl max-h-[80vh] flex flex-col">
                 <!-- Modal Header -->
-                <div class="flex items-center justify-between p-4 border-b">
+                <div class="flex items-center justify-between p-4 border-b border-gray-200">
                     <h3 class="text-lg font-medium text-gray-900">Source Code (JSON)</h3>
                     <button
                         x-on:click="closeJsonModal()"
@@ -261,11 +261,11 @@
 
                 <!-- Modal Body -->
                 <div class="flex-1 overflow-auto p-4">
-                    <pre class="bg-gray-50 border rounded-lg p-4 text-sm font-mono text-gray-800 whitespace-pre-wrap break-words overflow-auto max-h-[50vh]" x-text="jsonPayload"></pre>
+                    <pre class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-sm font-mono text-gray-800 whitespace-pre-wrap break-words overflow-auto max-h-[50vh]" x-text="jsonPayload"></pre>
                 </div>
 
                 <!-- Modal Footer -->
-                <div class="flex items-center justify-end gap-3 p-4 border-t">
+                <div class="flex items-center justify-end gap-3 p-4 border-t border-gray-200">
                     <span
                         x-show="copyStatus"
                         x-transition
