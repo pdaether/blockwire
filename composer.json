@@ -1,6 +1,6 @@
 {
     "name": "pdaether/blockwire",
-    "description": "A block editor made with Livewire. Maintained fork of jeffreyvr/blockwire",
+    "description": "A block editor made with Livewire. Maintained fork of jeffreyvr/dropblockeditor",
     "keywords": [
         "pdaether",
         "laravel",
@@ -10,7 +10,7 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Patrick Dahse",
+            "name": "Patrick Daether",
             "email": "public@pd-digital.de",
             "role": "Developer"
         },

@@ -1,11 +1,12 @@
 [![Build Status](https://github.com/pdaether/blockwire/workflows/run-tests/badge.svg?label=tests)](https://github.com/pdaether/blockwire/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/pdaether/blockwire.svg)](https://packagist.org/packages/pdaether/blockwire)
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/pdaether/blockwire.svg)](https://packagist.org/packages/pdaether/blockwire)
 
 # 🧱 BlockWire
 
 The reactive, drag-and-drop block editor for the TALL stack.
 BlockWire is a powerful, developer-friendly CMS-like editor built specifically for Laravel and Livewire. It allows you to build complex, modular content layouts using a "drag-and-drop" interface that feels native to your application.
+
+![BlockWire drag-and-drop editor](art/blockwire-dragndrop-editor.png)
 
 ## Why BlockWire?
 
@@ -17,7 +18,7 @@ BlockWire is a powerful, developer-friendly CMS-like editor built specifically f
 
 ## About This Fork
 
-This is based of [jeffreyvr/blockwire](https://github.com/jeffreyvr/blockwire) originally created by [Jeffrey van Rossum](https://github.com/jeffreyvr). This fork continues development with additional features and maintenance.
+This is based of [jeffreyvr/dropblockeditor](https://github.com/jeffreyvr/dropblockeditor) originally created by [Jeffrey van Rossum](https://github.com/jeffreyvr). This fork continues development with additional features and maintenance.
 
 ## Introduction
 
@@ -27,7 +28,14 @@ The BlockWire package provides you with a cool drag and drop editor. It allows y
 
 ## Documentation
 
-tbd.
+- [Documentation Index](docs/README.md)
+- [Installation](docs/installation.md)
+- [Setup Editor](docs/setup-editor.md)
+- [Making Blocks](docs/blocks.md)
+- [Buttons and Saving](docs/buttons-and-saving.md)
+- [Rendering in Frontend](docs/rendering-frontend.md)
+- [Parsers and MJML](docs/parsers-and-mjml.md)
+- [Configuration Reference](docs/configuration.md)
 
 ## Changelog
 
