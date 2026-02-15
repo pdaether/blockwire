@@ -24,18 +24,16 @@ This is based of [jeffreyvr/dropblockeditor](https://github.com/jeffreyvr/dropbl
 
 The BlockWire package provides you with a cool drag and drop editor. It allows you to easily create your own custom blocks and make them editable through Livewire components.
 
-> Note: This package is in the pre-release stage. Code is subject to change and should not considered stable at this time.
-
 ## Documentation
 
-- [Documentation Index](docs/README.md)
-- [Installation](docs/installation.md)
-- [Setup Editor](docs/setup-editor.md)
-- [Making Blocks](docs/blocks.md)
-- [Buttons and Saving](docs/buttons-and-saving.md)
-- [Rendering in Frontend](docs/rendering-frontend.md)
-- [Parsers and MJML](docs/parsers-and-mjml.md)
-- [Configuration Reference](docs/configuration.md)
+* [Documentation Index](docs/README.md)
+* [Installation](docs/installation.md)
+* [Setup Editor](docs/setup-editor.md)
+* [Making Blocks](docs/blocks.md)
+* [Buttons and Saving](docs/buttons-and-saving.md)
+* [Rendering in Frontend](docs/rendering-frontend.md)
+* [Parsers and MJML](docs/parsers-and-mjml.md)
+* [Configuration Reference](docs/configuration.md)
 
 ## Changelog
 
