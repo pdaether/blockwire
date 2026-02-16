@@ -3,7 +3,7 @@
 ## Requirements
 
 - PHP `^8.4`
-- Livewire `^3.3`
+- Livewire `^4.0`
 - Laravel components via `illuminate/contracts` `^10|^11|^12`
 
 ## Install package
