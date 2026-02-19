@@ -34,6 +34,12 @@ class BlockWire extends Component
 
     public ?array $blocks = null;
 
+    protected function setActiveBlockIndex(int|string|false $value): void
+    {
+        $this->activeBlockIndex = $value;
+        $this->dispatch('activeBlockIndexChanged', $value);
+    }
+
     public function updatedActiveBlockIndex(int|string|false $value): void
     {
         $this->dispatch('activeBlockIndexChanged', $value);
@@ -64,7 +70,7 @@ class BlockWire extends Component
         $this->historyIndex--;
 
         $this->activeBlocks = $this->history[$this->historyIndex]['activeBlocks'];
-        $this->activeBlockIndex = $this->history[$this->historyIndex]['activeBlockIndex'];
+        $this->setActiveBlockIndex($this->history[$this->historyIndex]['activeBlockIndex']);
         $this->updateHash();
     }
 
@@ -82,7 +88,7 @@ class BlockWire extends Component
         $this->historyIndex++;
 
         $this->activeBlocks = $this->history[$this->historyIndex]['activeBlocks'];
-        $this->activeBlockIndex = $this->history[$this->historyIndex]['activeBlockIndex'];
+        $this->setActiveBlockIndex($this->history[$this->historyIndex]['activeBlockIndex']);
         $this->updateHash();
     }
 
@@ -121,7 +127,7 @@ class BlockWire extends Component
 
     public function blockSelected($blockId): void
     {
-        $this->activeBlockIndex = $blockId;
+        $this->setActiveBlockIndex($blockId);
 
         $this->recordInHistory();
     }
@@ -138,7 +144,7 @@ class BlockWire extends Component
 
         $this->activeBlocks[] = $clone;
 
-        $this->activeBlockIndex = array_key_last($this->activeBlocks);
+        $this->setActiveBlockIndex(array_key_last($this->activeBlocks));
 
         $this->recordInHistory();
     }
@@ -151,7 +157,7 @@ class BlockWire extends Component
             return;
         }
 
-        $this->activeBlockIndex = false;
+        $this->setActiveBlockIndex(false);
 
         unset($this->activeBlocks[$index]);
 
@@ -205,21 +211,24 @@ class BlockWire extends Component
 
     public function insertBlock(int $id, ?int $index = null, ?string $placement = null): void
     {
-        if ($index === null) {
-            $block = $this->blocks[$id];
+        $block = $this->blocks[$id];
 
+        if ($index === null) {
+            $this->setActiveBlockIndex(count($this->activeBlocks));
             $this->activeBlocks[] = $block;
+            $this->recordInHistory();
 
             return;
         }
 
-        if ($placement === 'before') {
-            $newIndex = $index - 1 == -1 ? 0 : $index - 1;
-        } else {
-            $newIndex = $index + 1;
-        }
+        $newIndex = $placement === 'before'
+            ? max($index - 1, 0)
+            : $index + 1;
 
-        $this->activeBlocks = array_merge(array_slice($this->activeBlocks, 0, $newIndex), [$this->blocks[$id]], array_slice($this->activeBlocks, $newIndex));
+        $newIndex = min(max($newIndex, 0), count($this->activeBlocks));
+
+        $this->activeBlocks = array_merge(array_slice($this->activeBlocks, 0, $newIndex), [$block], array_slice($this->activeBlocks, $newIndex));
+        $this->setActiveBlockIndex($newIndex);
 
         $this->recordInHistory();
     }

@@ -32,12 +32,28 @@ it('displays the active block', function () {
         ->assertSee('Drop it like it\'s hot');
 });
 
+it('activates a newly inserted block by default', function () {
+    Livewire::test(BlockWire::class, [
+        'title' => 'The name of the campaign',
+    ])
+        ->call('insertBlock', 0, 0)
+        ->assertSet('activeBlockIndex', 0);
+});
+
+it('activates a newly inserted block when dropped after another block', function () {
+    Livewire::test(BlockWire::class, [
+        'title' => 'The name of the campaign',
+    ])
+        ->call('insertBlock', 0)
+        ->call('insertBlock', 0, 0, 'after')
+        ->assertSet('activeBlockIndex', 1);
+});
+
 it('can undo and redo a change', function () {
     Livewire::test(BlockWire::class, [
         'title' => 'The name of the campaign',
     ])
         ->call('insertBlock', 0)
-        ->call('recordInHistory')
         ->assertSee('Drop it like it\'s hot')
         ->call('undo')
         ->assertDontSee('Drop it like it\'s hot')

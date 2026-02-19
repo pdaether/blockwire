@@ -40,6 +40,10 @@ window.blockwire = (config) => {
 
         activeBlockId: null,
 
+        pendingPreviewChange: null,
+
+        previewPositionsBeforeUpdate: null,
+
         // JSON Modal state
         showJsonModal: false,
         jsonPayload: '',
@@ -95,10 +99,360 @@ window.blockwire = (config) => {
             this.copyStatus = '';
         },
 
+        getFrameWindow() {
+            return this.iframe ? this.iframe.contentWindow : null;
+        },
+
+        getFrameDocument() {
+            let frameWindow = this.getFrameWindow();
+
+            if (! frameWindow) {
+                return null;
+            }
+
+            return frameWindow.document;
+        },
+
+        toNumber(value) {
+            if (value === false || value === null || typeof value === 'undefined' || value === '' || value === 'false') {
+                return null;
+            }
+
+            let number = Number(value);
+
+            if (! Number.isFinite(number)) {
+                return null;
+            }
+
+            return number;
+        },
+
+        normalizeActiveBlockId(value) {
+            if (Array.isArray(value)) {
+                if (value.length === 0) {
+                    return false;
+                }
+
+                return this.normalizeActiveBlockId(value[0]);
+            }
+
+            if (value && typeof value === 'object') {
+                if (Object.prototype.hasOwnProperty.call(value, 'detail')) {
+                    return this.normalizeActiveBlockId(value.detail);
+                }
+
+                if (Object.prototype.hasOwnProperty.call(value, 'activeBlockIndex')) {
+                    return this.normalizeActiveBlockId(value.activeBlockIndex);
+                }
+
+                if (Object.prototype.hasOwnProperty.call(value, 'blockId')) {
+                    return this.normalizeActiveBlockId(value.blockId);
+                }
+
+                let values = Object.values(value);
+
+                if (values.length === 1) {
+                    return this.normalizeActiveBlockId(values[0]);
+                }
+            }
+
+            let number = this.toNumber(value);
+
+            if (number === null) {
+                return false;
+            }
+
+            return number;
+        },
+
+        applyActiveBlockState(root = null) {
+            let frameRoot = root ?? this.getFrameDocument();
+
+            if (! frameRoot) {
+                return;
+            }
+
+            frameRoot.querySelectorAll('[drag-item]').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            let activeBlockId = this.normalizeActiveBlockId(this.activeBlockId);
+            this.activeBlockId = activeBlockId;
+
+            if (activeBlockId === false) {
+                return;
+            }
+
+            let activeBlock = frameRoot.querySelector(`[drag-item][data-block="${activeBlockId}"]`);
+
+            if (activeBlock) {
+                activeBlock.classList.add('active');
+            }
+        },
+
+        capturePreviewPositions(root) {
+            let positions = [];
+
+            root.querySelectorAll('[drag-item]').forEach(item => {
+                let index = this.toNumber(item.dataset.block);
+
+                if (index === null) {
+                    return;
+                }
+
+                let rect = item.getBoundingClientRect();
+
+                positions[index] = {
+                    top: rect.top,
+                    left: rect.left,
+                };
+            });
+
+            return positions;
+        },
+
+        resolveInsertedIndex(change) {
+            if (change.previousCount === 0) {
+                return 0;
+            }
+
+            if (change.index === null) {
+                return change.previousCount;
+            }
+
+            if (change.placement === 'before') {
+                return change.index - 1 === -1 ? 0 : change.index - 1;
+            }
+
+            return change.index + 1;
+        },
+
+        oldIndexForNewIndex(newIndex, change) {
+            if (change.type === 'clone') {
+                if (newIndex === change.insertedIndex) {
+                    return null;
+                }
+
+                return newIndex;
+            }
+
+            if (change.type === 'insert') {
+                if (newIndex === change.insertedIndex) {
+                    return null;
+                }
+
+                return newIndex < change.insertedIndex ? newIndex : newIndex - 1;
+            }
+
+            if (change.type === 'delete') {
+                return newIndex < change.index ? newIndex : newIndex + 1;
+            }
+
+            return newIndex;
+        },
+
+        animateFromPreviousRect(item, previousRect, frameWindow) {
+            let currentRect = item.getBoundingClientRect();
+
+            let deltaX = previousRect.left - currentRect.left;
+            let deltaY = previousRect.top - currentRect.top;
+
+            if (Math.abs(deltaX) < 1 && Math.abs(deltaY) < 1) {
+                return;
+            }
+
+            item.style.transition = 'none';
+            item.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+            item.style.willChange = 'transform';
+
+            frameWindow.requestAnimationFrame(() => {
+                item.style.transition = 'transform 280ms cubic-bezier(0.22, 1, 0.36, 1)';
+                item.style.transform = '';
+
+                frameWindow.setTimeout(() => {
+                    item.style.transition = '';
+                    item.style.willChange = '';
+                }, 320);
+            });
+        },
+
+        queuePreviewChange(type, payload = {}) {
+            let root = this.getFrameDocument();
+
+            if (! root) {
+                return;
+            }
+
+            this.lastTopPos = root.documentElement.scrollTop;
+
+            this.pendingPreviewChange = {
+                type: type,
+                previousCount: root.querySelectorAll('[drag-item]').length,
+                ...payload,
+            };
+
+            if (this.pendingPreviewChange.type === 'clone') {
+                this.pendingPreviewChange.insertedIndex = this.pendingPreviewChange.previousCount;
+            }
+
+            if (this.pendingPreviewChange.type === 'insert') {
+                this.pendingPreviewChange.insertedIndex = this.resolveInsertedIndex(this.pendingPreviewChange);
+            }
+
+            this.previewPositionsBeforeUpdate = this.capturePreviewPositions(root);
+        },
+
+        resetPreviewChangeQueue() {
+            this.pendingPreviewChange = null;
+            this.previewPositionsBeforeUpdate = null;
+        },
+
+        applyPendingPreviewAnimation() {
+            let root = this.getFrameDocument();
+            let frameWindow = this.getFrameWindow();
+
+            if (! root || ! frameWindow) {
+                this.resetPreviewChangeQueue();
+
+                return;
+            }
+
+            if (! this.pendingPreviewChange || ! this.previewPositionsBeforeUpdate) {
+                return;
+            }
+
+            frameWindow.requestAnimationFrame(() => {
+                root.querySelectorAll('[drag-item]').forEach(item => {
+                    let newIndex = this.toNumber(item.dataset.block);
+
+                    if (newIndex === null) {
+                        return;
+                    }
+
+                    let oldIndex = this.oldIndexForNewIndex(newIndex, this.pendingPreviewChange);
+
+                    if (oldIndex === null) {
+                        return;
+                    }
+
+                    let previousRect = this.previewPositionsBeforeUpdate[oldIndex];
+
+                    if (! previousRect) {
+                        return;
+                    }
+
+                    this.animateFromPreviousRect(item, previousRect, frameWindow);
+                });
+
+                let insertedIndex = this.pendingPreviewChange.insertedIndex;
+
+                if (typeof insertedIndex === 'number') {
+                    let insertedItem = root.querySelector(`[drag-item][data-block="${insertedIndex}"]`);
+
+                    if (insertedItem) {
+                        insertedItem.classList.add('blockwire-entering');
+                        frameWindow.setTimeout(() => insertedItem.classList.remove('blockwire-entering'), 360);
+                    }
+                }
+
+                this.resetPreviewChangeQueue();
+            });
+        },
+
+        animateCurrentLayoutShift(root, mutator) {
+            let before = this.capturePreviewPositions(root);
+            let frameWindow = this.getFrameWindow();
+
+            mutator();
+
+            if (! frameWindow) {
+                return;
+            }
+
+            root.querySelectorAll('[drag-item]').forEach(item => {
+                let index = this.toNumber(item.dataset.block);
+
+                if (index === null) {
+                    return;
+                }
+
+                let previousRect = before[index];
+
+                if (! previousRect) {
+                    return;
+                }
+
+                this.animateFromPreviousRect(item, previousRect, frameWindow);
+            });
+        },
+
+        cloneActiveBlock() {
+            let blockIndex = this.toNumber(this.$wire.activeBlockIndex);
+
+            if (blockIndex === null) {
+                return;
+            }
+
+            this.queuePreviewChange('clone', {
+                index: blockIndex,
+            });
+
+            this.component().call('cloneBlock', blockIndex);
+        },
+
+        deleteBlockWithAnimation(blockIndex, blockElement = null) {
+            let index = this.toNumber(blockIndex);
+
+            if (index === null) {
+                return;
+            }
+
+            this.queuePreviewChange('delete', {
+                index: index,
+            });
+
+            let root = this.getFrameDocument();
+            let frameWindow = this.getFrameWindow();
+            let target = blockElement;
+
+            if (! target && root) {
+                target = root.querySelector(`[drag-item][data-block="${index}"]`);
+            }
+
+            if (! target || ! frameWindow) {
+                this.component().call('deleteBlock', index);
+
+                return;
+            }
+
+            if (target.dataset.bwRemoving === '1') {
+                return;
+            }
+
+            target.dataset.bwRemoving = '1';
+            target.classList.add('blockwire-removing');
+
+            frameWindow.setTimeout(() => {
+                delete target.dataset.bwRemoving;
+                this.component().call('deleteBlock', index);
+            }, 180);
+        },
+
+        deleteActiveBlock() {
+            let blockIndex = this.toNumber(this.$wire.activeBlockIndex);
+
+            if (blockIndex === null) {
+                return;
+            }
+
+            this.deleteBlockWithAnimation(blockIndex);
+        },
+
         init() {
             this.iframe = document.getElementById("frame");
 
             this.dropList = document.querySelector("[drop-list]");
+            this.activeBlockId = this.normalizeActiveBlockId(this.$wire.activeBlockIndex);
 
             this.restorePanelWidth();
 
@@ -120,37 +474,23 @@ window.blockwire = (config) => {
 
             this.iframe.addEventListener("load", () => {
                 this.initListeners()
-
-                if (this.activeBlockId !== null && this.activeBlockId !== false) {
-                    let root = this.iframe.contentWindow.document;
-                    let activeBlock = root.querySelector('[drag-item][data-block="' + this.activeBlockId + '"]');
-                    if (activeBlock) {
-                        root.querySelectorAll('[drag-item]').forEach(item => {
-                            item.classList.remove('active');
-                        });
-                        activeBlock.classList.add('active');
-                    }
-                }
+                this.activeBlockId = this.normalizeActiveBlockId(this.$wire.activeBlockIndex);
+                this.applyActiveBlockState(this.iframe.contentWindow.document);
 
                 this.iframe.contentWindow.scrollTo(0, this.lastTopPos)
+
+                this.applyPendingPreviewAnimation()
             })
 
             Livewire.on('activeBlockIndexChanged', (data) => {
-                this.activeBlockId = data;
+                let activeBlockId = this.normalizeActiveBlockId(data);
 
-                if (this.iframe && this.iframe.contentWindow) {
-                    let root = this.iframe.contentWindow.document;
-                    root.querySelectorAll('[drag-item]').forEach(item => {
-                        item.classList.remove('active');
-                    });
-
-                    if (data !== false && data !== null) {
-                        let activeBlock = root.querySelector('[drag-item][data-block="' + data + '"]');
-                        if (activeBlock) {
-                            activeBlock.classList.add('active');
-                        }
-                    }
+                if (activeBlockId === false) {
+                    activeBlockId = this.normalizeActiveBlockId(this.$wire.activeBlockIndex);
                 }
+
+                this.activeBlockId = activeBlockId;
+                this.applyActiveBlockState();
             });
         },
 
@@ -317,65 +657,102 @@ window.blockwire = (config) => {
         },
 
         initListeners() {
-            let root = this.iframe.contentWindow.document;
+            let root = this.getFrameDocument();
 
-            root.addEventListener('keydown', (e) => this.undo(e, this));
-            root.addEventListener('keydown', (e) => this.redo(e, this));
+            if (! root) {
+                return;
+            }
 
-            this.dropList.querySelectorAll('[drag-item]').forEach(el => {
-                el.addEventListener("dragstart", e => {
-                    e.target.setAttribute('inserting', true)
-                })
+            if (! root.documentElement.hasAttribute('data-bw-shortcuts-bound')) {
+                root.addEventListener('keydown', (e) => this.undo(e, this));
+                root.addEventListener('keydown', (e) => this.redo(e, this));
+                root.documentElement.setAttribute('data-bw-shortcuts-bound', '1');
+            }
 
-                el.addEventListener('dragend', e => {
-                    e.target.removeAttribute('inserting')
-                })
-
-                el.addEventListener('dragover', e => e.preventDefault())
-            })
-
-            root.querySelectorAll('[drop-placeholder]').forEach(el => {
-                el.addEventListener('dragover', e => e.preventDefault())
-
-                el.addEventListener('dragenter', e => {
-                    e.preventDefault()
-
-                    e.target.classList.add('bg-gray-200/50', 'animate-pulse');
-                })
-
-                el.addEventListener('dragleave', e => {
-                    e.preventDefault()
-
-                    e.target.classList.remove('bg-gray-200/50', 'animate-pulse');
-                })
-
-                el.addEventListener('drop', e => {
-                    e.preventDefault()
-
-                    if (!e.target.closest('[drop-placeholder]')) {
+            if (this.dropList) {
+                this.dropList.querySelectorAll('[drag-item]').forEach(el => {
+                    if (el.dataset.bwPickerBound === '1') {
                         return;
                     }
 
-                    let insertingEl = document.querySelector('[inserting]')
+                    el.dataset.bwPickerBound = '1';
+
+                    el.addEventListener("dragstart", e => {
+                        e.target.setAttribute('inserting', true);
+                    });
+
+                    el.addEventListener('dragend', e => {
+                        e.target.removeAttribute('inserting');
+                    });
+
+                    el.addEventListener('dragover', e => e.preventDefault());
+                });
+            }
+
+            root.querySelectorAll('[drop-placeholder]').forEach(el => {
+                if (el.dataset.bwPlaceholderBound === '1') {
+                    return;
+                }
+
+                el.dataset.bwPlaceholderBound = '1';
+
+                el.addEventListener('dragover', e => e.preventDefault());
+
+                el.addEventListener('dragenter', e => {
+                    e.preventDefault();
+                    e.target.classList.add('bg-gray-200/50', 'animate-pulse');
+                });
+
+                el.addEventListener('dragleave', e => {
+                    e.preventDefault();
+                    e.target.classList.remove('bg-gray-200/50', 'animate-pulse');
+                });
+
+                el.addEventListener('drop', e => {
+                    e.preventDefault();
+
+                    if (! e.target.closest('[drop-placeholder]')) {
+                        return;
+                    }
+
+                    let insertingEl = document.querySelector('[inserting]');
 
                     if (insertingEl != null) {
-                        this.component().call('insertBlock', insertingEl.dataset.block, 0)
+                        this.queuePreviewChange('insert', {
+                            index: 0,
+                            placement: null,
+                        });
 
-                        insertingEl.removeAttribute('inserting')
+                        this.component().call('insertBlock', insertingEl.dataset.block, 0);
+
+                        insertingEl.removeAttribute('inserting');
 
                         insertingEl = false;
-
-                        return
                     }
-                })
-            })
+                });
+            });
 
             root.querySelectorAll('[drag-item]').forEach(el => {
+                if (el.dataset.bwPreviewBound === '1') {
+                    return;
+                }
+
+                el.dataset.bwPreviewBound = '1';
+
                 let cloneBtn = el.querySelector('.action-clone');
                 if (cloneBtn) {
                     cloneBtn.addEventListener('click', e => {
                         e.stopPropagation();
-                        let blockId = e.target.closest('[drag-item]').dataset.block;
+                        let blockId = this.toNumber(e.target.closest('[drag-item]').dataset.block);
+
+                        if (blockId === null) {
+                            return;
+                        }
+
+                        this.queuePreviewChange('clone', {
+                            index: blockId,
+                        });
+
                         this.component().call('cloneBlock', blockId);
                     });
                 }
@@ -384,8 +761,14 @@ window.blockwire = (config) => {
                 if (deleteBtn) {
                     deleteBtn.addEventListener('click', e => {
                         e.stopPropagation();
-                        let blockId = e.target.closest('[drag-item]').dataset.block;
-                        this.component().call('deleteBlock', blockId);
+
+                        let target = e.target.closest('[drag-item]');
+
+                        if (! target) {
+                            return;
+                        }
+
+                        this.deleteBlockWithAnimation(target.dataset.block, target);
                     });
                 }
 
@@ -395,78 +778,77 @@ window.blockwire = (config) => {
                     }
 
                     let dragItem = e.target.closest('[drag-item]');
+
+                    if (! dragItem) {
+                        return;
+                    }
+
                     let blockId = dragItem.dataset.block;
 
-                    this.activeBlockId = blockId;
-
-                    root.querySelectorAll('[drag-item]').forEach(item => {
-                        item.classList.remove('active');
-                    });
-
-                    dragItem.classList.add('active');
+                    this.activeBlockId = this.normalizeActiveBlockId(blockId);
+                    this.applyActiveBlockState(root);
 
                     Livewire.dispatch('blockEditComponentSelected', {
                         blockId: blockId
                     });
-                }, false)
+                }, false);
 
                 el.addEventListener('dragstart', e => {
-                    e.target.setAttribute('dragging', true)
-                    this.currentDragItem = el
-                })
+                    e.target.setAttribute('dragging', true);
+                    this.currentDragItem = el;
+                });
 
                 el.addEventListener('dragover', e => {
-                    e.preventDefault()
+                    e.preventDefault();
 
-                    let dragitem = e.target.closest('[drag-item]')
+                    let dragitem = e.target.closest('[drag-item]');
 
-                    if (this.currentDragItem === dragitem) {
+                    if (! dragitem || this.currentDragItem === dragitem) {
                         return;
                     }
 
-                    let placement = this.beforeOrAfterEl(e, dragitem)
+                    let placement = this.beforeOrAfterEl(e, dragitem);
                     let isPreviousSibling = this.currentDragItem != null ? this.currentDragItem.previousElementSibling : false;
                     let isNextSibling = this.currentDragItem != null ? this.currentDragItem.nextElementSibling : false;
 
                     if (dragitem != isNextSibling && placement === 'before') {
                         dragitem.classList.remove(...this.insertAfterClasses);
                         dragitem.classList.add(...this.insertBeforeClasses);
-
                     } else if (dragitem != isPreviousSibling && placement === 'after') {
                         dragitem.classList.remove(...this.insertBeforeClasses);
                         dragitem.classList.add(...this.insertAfterClasses);
-
                     } else {
                         dragitem.classList.remove(...this.insertBeforeClasses, ...this.insertAfterClasses);
                     }
-                })
+                });
 
                 el.addEventListener('dragend', e => {
-                    e.target.removeAttribute('dragging')
-                    this.currentDragItem = null
-                })
+                    e.target.removeAttribute('dragging');
+                    this.currentDragItem = null;
+                });
 
                 el.addEventListener('dragenter', e => {
                     if (e.target.hasAttribute('drag-item')) {
-                        e.target.setAttribute('is-target', true)
+                        e.target.setAttribute('is-target', true);
                     }
-                })
+                });
 
                 el.addEventListener('dragleave', e => {
-                    e.preventDefault()
+                    e.preventDefault();
 
                     if (e.target.hasAttribute('is-target')) {
                         e.target.classList.remove(...this.insertAfterClasses, ...this.insertBeforeClasses);
                     }
-                })
+                });
 
                 el.addEventListener('drop', e => {
-                    e.preventDefault()
+                    e.preventDefault();
 
-                    let draggingEl = root.querySelector('[dragging]')
-                    let insertingEl = document.querySelector('[inserting]')
+                    let targetItem = e.target.closest('[drag-item]');
+                    let draggingEl = root.querySelector('[dragging]');
+                    let insertingEl = document.querySelector('[inserting]');
 
-                    if (!e.target.closest('[drag-item]')) {
+                    if (! targetItem) {
                         return;
                     }
 
@@ -474,32 +856,45 @@ window.blockwire = (config) => {
                         e.target.classList.remove(...this.insertAfterClasses, ...this.insertBeforeClasses);
                     }
 
-                    this.lastTopPos = root.documentElement.scrollTop
+                    this.lastTopPos = root.documentElement.scrollTop;
 
-                    let placement = this.beforeOrAfterEl(e, e.target.closest('[drag-item]'))
+                    let placement = this.beforeOrAfterEl(e, targetItem);
 
                     if (insertingEl != null) {
-                        this.component().call('insertBlock', insertingEl.dataset.block, e.target.closest('[drag-item]').dataset.block, placement)
+                        this.queuePreviewChange('insert', {
+                            index: this.toNumber(targetItem.dataset.block),
+                            placement: placement,
+                        });
 
-                        insertingEl.removeAttribute('inserting')
+                        this.component().call('insertBlock', insertingEl.dataset.block, targetItem.dataset.block, placement);
+
+                        insertingEl.removeAttribute('inserting');
 
                         insertingEl = false;
 
-                        return
+                        return;
                     }
 
-                    if (placement === 'after') {
-                        e.target.closest('[drag-item]').after(draggingEl)
-                    } else {
-                        e.target.closest('[drag-item]').before(draggingEl)
+                    if (! draggingEl) {
+                        return;
                     }
+
+                    this.resetPreviewChangeQueue();
+
+                    this.animateCurrentLayoutShift(root, () => {
+                        if (placement === 'after') {
+                            targetItem.after(draggingEl);
+                        } else {
+                            targetItem.before(draggingEl);
+                        }
+                    });
 
                     let orderIds = Array.from(root.querySelectorAll('[drag-item]'))
-                        .map(itemEl => itemEl.dataset.block)
+                        .map(itemEl => itemEl.dataset.block);
 
-                    this.component().call('reorder', orderIds)
-                })
-            })
+                    this.component().call('reorder', orderIds);
+                });
+            });
         },
 
         isBefore(container, target, current) {

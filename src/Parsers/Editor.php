@@ -29,10 +29,27 @@ class Editor extends Parser implements ParserInterface
         }
 
         $activeBorderCss = '
+            [drag-item]::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                border: 2px solid #9ca3af;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.2s ease, border-color 0.2s ease;
+            }
+            [drag-item]:hover::before {
+                opacity: 1;
+            }
             [drag-item].active::before {
+                opacity: 1 !important;
                 border-color: var(--active-border-color) !important;
             }
             [drag-item].active:hover::before {
+                opacity: 1 !important;
                 border-color: var(--active-border-color) !important;
             }
 
@@ -101,6 +118,41 @@ class Editor extends Parser implements ParserInterface
 
             [drag-item] .block-actions button:hover {
                 opacity: 0.8;
+            }
+
+            [drag-item] {
+                transform-origin: center;
+            }
+
+            [drag-item].blockwire-entering {
+                animation: blockwire-enter 280ms cubic-bezier(0.22, 1, 0.36, 1);
+            }
+
+            [drag-item].blockwire-removing {
+                animation: blockwire-remove 180ms ease-in forwards;
+                pointer-events: none;
+            }
+
+            @keyframes blockwire-enter {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px) scale(0.97);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+            }
+
+            @keyframes blockwire-remove {
+                from {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+                to {
+                    opacity: 0;
+                    transform: translateY(-6px) scale(0.97);
+                }
             }
         ';
 
