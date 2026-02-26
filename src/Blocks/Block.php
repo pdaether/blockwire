@@ -20,6 +20,8 @@ abstract class Block implements BlockInterface
 
     public ?string $category = null;
 
+    public bool $show = true;
+
     public array $data = [];
 
     abstract public function render(): string|\Illuminate\View\View;
@@ -71,6 +73,7 @@ abstract class Block implements BlockInterface
             'data' => $this->data,
             'class' => get_class($this),
             'category' => $this->category,
+            'show' => $this->show,
         ];
     }
 }

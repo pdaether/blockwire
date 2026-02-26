@@ -12,18 +12,23 @@ class Html extends Parser implements ParserInterface
         $content = $this->dropPlaceholderHtml();
 
         $blocks = collect($this->blocks)
-            ->map(function ($block) {
-                return Block::fromName($block['class'])
-                    ->data($block['data']);
-            })
+            ->filter(fn (array $block) => $this->shouldRenderBlock($block))
             ->map(function ($block, $key) {
-                $view = $block->makeView();
+                $blockComponent = Block::fromName($block['class'])
+                    ->data($block['data']);
+
+                $view = $blockComponent->makeView();
 
                 if ($this->context === 'editor') {
-                    $view = $this->prepareBlockForEditor(['id' => $key, 'blockHtml' => $view, 'title' => $block->getTitle()]);
+                    $view = $this->prepareBlockForEditor([
+                        'id' => $key,
+                        'blockHtml' => $view,
+                        'title' => $blockComponent->getTitle(),
+                        'show' => $block['show'] ?? true,
+                    ]);
                 }
 
-                return Blade::render($view, $block->getData());
+                return Blade::render($view, $blockComponent->getData());
             })
             ->values();
 

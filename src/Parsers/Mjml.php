@@ -15,21 +15,26 @@ class Mjml extends Parser implements ParserInterface
         $content = '<mj-raw>'.$this->dropPlaceholderHtml().'</mj-raw>';
 
         $blocks = collect($this->blocks)
-            ->map(function ($block) {
-                return Block::fromName($block['class'])
-                    ->data($block['data']);
-            })
+            ->filter(fn (array $block) => $this->shouldRenderBlock($block))
             ->map(function ($block, $key) {
-                $view = $block->makeView();
+                $blockComponent = Block::fromName($block['class'])
+                    ->data($block['data']);
+
+                $view = $blockComponent->makeView();
 
                 if ($this->context === 'editor') {
                     $this->setBlockArguments('before', ['before' => '<mj-raw>', 'after' => '</mj-raw>'], 'wrap');
                     $this->setBlockArguments('after', ['before' => '<mj-raw>', 'after' => '</mj-raw>'], 'wrap');
 
-                    $view = $this->prepareBlockForEditor(['id' => $key, 'blockHtml' => $view, 'title' => $block->getTitle()]);
+                    $view = $this->prepareBlockForEditor([
+                        'id' => $key,
+                        'blockHtml' => $view,
+                        'title' => $blockComponent->getTitle(),
+                        'show' => $block['show'] ?? true,
+                    ]);
                 }
 
-                return Blade::render($view, $block->getData());
+                return Blade::render($view, $blockComponent->getData());
             })
             ->values();
 

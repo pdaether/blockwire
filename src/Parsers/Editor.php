@@ -52,6 +52,18 @@ class Editor extends Parser implements ParserInterface
                 opacity: 1 !important;
                 border-color: var(--active-border-color) !important;
             }
+            [drag-item][data-show="0"]::before {
+                opacity: 1 !important;
+                border-color: #fca5a5 !important;
+            }
+            [drag-item][data-show="0"].active::before {
+                opacity: 1 !important;
+                border-color: #991b1b !important;
+            }
+            [drag-item][data-show="0"].active:hover::before {
+                opacity: 1 !important;
+                border-color: #991b1b !important;
+            }
 
             [drag-item] .block-label {
                 position: absolute;
@@ -75,6 +87,10 @@ class Editor extends Parser implements ParserInterface
 
             [drag-item].active .block-label {
                 background-color: var(--active-border-color);
+            }
+
+            [drag-item][data-show="0"].active .block-label {
+                background-color: #991b1b;
             }
 
             [drag-item] .block-actions {
@@ -101,6 +117,10 @@ class Editor extends Parser implements ParserInterface
 
             [drag-item].active .block-actions {
                 background-color: var(--active-border-color);
+            }
+
+            [drag-item][data-show="0"].active .block-actions {
+                background-color: #991b1b;
             }
 
             [drag-item] .block-actions button {

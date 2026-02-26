@@ -34,6 +34,35 @@ class BlockWire extends Component
 
     public ?array $blocks = null;
 
+    protected function normalizeShowFlag(mixed $value): bool
+    {
+        if ($value === false || $value === 0 || $value === '0') {
+            return false;
+        }
+
+        if (is_string($value) && strtolower(trim($value)) === 'false') {
+            return false;
+        }
+
+        return true;
+    }
+
+    protected function normalizeActiveBlocks(): void
+    {
+        $this->activeBlocks = collect($this->activeBlocks)
+            ->map(function ($block) {
+                if (! is_array($block)) {
+                    return $block;
+                }
+
+                $block['show'] = $this->normalizeShowFlag($block['show'] ?? true);
+
+                return $block;
+            })
+            ->values()
+            ->all();
+    }
+
     protected function setActiveBlockIndex(int|string|false $value): void
     {
         $this->activeBlockIndex = $value;
@@ -149,6 +178,20 @@ class BlockWire extends Component
         $this->recordInHistory();
     }
 
+    public function toggleBlockVisibility(?int $blockId = null): void
+    {
+        $index = $blockId !== null ? $blockId : $this->activeBlockIndex;
+
+        if (! isset($this->activeBlocks[$index])) {
+            return;
+        }
+
+        $visible = $this->normalizeShowFlag($this->activeBlocks[$index]['show'] ?? true);
+        $this->activeBlocks[$index]['show'] = ! $visible;
+
+        $this->recordInHistory();
+    }
+
     public function deleteBlock(?int $blockId = null): void
     {
         $index = $blockId !== null ? $blockId : $this->activeBlockIndex;
@@ -190,6 +233,8 @@ class BlockWire extends Component
             ->all();
 
         $this->buttons = ! is_null($this->buttons) ? $this->buttons : config('blockwire.buttons', []);
+
+        $this->normalizeActiveBlocks();
 
         $this->updateHash();
 

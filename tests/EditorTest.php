@@ -1,7 +1,9 @@
 <?php
 
 use Livewire\Livewire;
+use Pdaether\BlockWire\Blocks\Example;
 use Pdaether\BlockWire\Components\BlockWire;
+use Pdaether\BlockWire\Parsers\Parse;
 
 it('can render the editor', function () {
     Livewire::test(BlockWire::class, [
@@ -77,4 +79,87 @@ it('sets initial active blocks when set', function () {
         'activeBlocks' => json_decode('[{"data":{"title":"Picking my way out of here", "content": "One Song At A Time"},"class":"Pdaether\\\\BlockWire\\\\Blocks\\\\Example"}]', true),
     ])
         ->assertSee('One Song At A Time');
+});
+
+it('can toggle block visibility and stores show flag in json', function () {
+    $editor = Livewire::test(BlockWire::class, [
+        'title' => 'The name of the campaign',
+    ])
+        ->call('insertBlock', 0)
+        ->assertSet('activeBlocks.0.show', true)
+        ->call('toggleBlockVisibility')
+        ->assertSet('activeBlocks.0.show', false);
+
+    expect($editor->instance()->getJsonSnapshot())->toContain('"show": false');
+});
+
+it('does not render hidden blocks in rendered context', function () {
+    $html = Parse::execute([
+        'activeBlocks' => [
+            [
+                'data' => [
+                    'title' => 'Visible title',
+                    'content' => 'Visible content',
+                ],
+                'class' => Example::class,
+                'show' => true,
+            ],
+            [
+                'data' => [
+                    'title' => 'Hidden title',
+                    'content' => 'Hidden content',
+                ],
+                'class' => Example::class,
+                'show' => false,
+            ],
+        ],
+        'base' => '{{ $slot }}',
+        'context' => 'rendered',
+        'parsers' => config('blockwire.parsers'),
+    ]);
+
+    expect($html)
+        ->toContain('Visible content')
+        ->not->toContain('Hidden content');
+});
+
+it('renders legacy blocks in rendered context when show flag is missing', function () {
+    $html = Parse::execute([
+        'activeBlocks' => [
+            [
+                'data' => [
+                    'title' => 'Legacy title',
+                    'content' => 'Legacy content',
+                ],
+                'class' => Example::class,
+            ],
+        ],
+        'base' => '{{ $slot }}',
+        'context' => 'rendered',
+        'parsers' => config('blockwire.parsers'),
+    ]);
+
+    expect($html)->toContain('Legacy content');
+});
+
+it('still renders hidden blocks in editor context', function () {
+    $html = Parse::execute([
+        'activeBlocks' => [
+            [
+                'data' => [
+                    'title' => 'Hidden title',
+                    'content' => 'Hidden content',
+                ],
+                'class' => Example::class,
+                'show' => false,
+            ],
+        ],
+        'base' => '<html><head></head><body>{!! $slot !!}</body></html>',
+        'context' => 'editor',
+        'parsers' => config('blockwire.parsers'),
+    ]);
+
+    expect($html)
+        ->toContain('Hidden content')
+        ->toContain('data-show="0"');
 });
