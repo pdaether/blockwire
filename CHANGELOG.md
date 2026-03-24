@@ -4,6 +4,12 @@ All notable changes to `blockwire` will be documented in this file.
 
 ## Unreleased
 
+## 2.3.0 - 2026-03-24
+
+- Improve scrolling in forms
+- Document new config values
+- Add debounce function for rendering
+
 ## 2.2.0 - 2026-03-24
 
 - Improve drop zone
