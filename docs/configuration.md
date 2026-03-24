@@ -8,8 +8,8 @@ Published file: `config/blockwire.php`
 - `include_css` (`bool`): include package editor CSS inline in editor view.
 - `preview_css` (`string|null`): custom CSS file from `public/` used in preview iframe.
 - `show_source_button` (`bool`): show JSON source modal button.
-- `preview.mode` (`string`): preview refresh strategy. Supported values: `immediate`, `debounced`, `manual`.
-- `preview.debounce_ms` (`int`): idle delay before a debounced preview refresh runs.
+- `preview.mode` (`string`): preview refresh strategy. Supported values: `immediate`, `debounced`, `manual`. Env: `BLOCKWIRE_PREVIEW_MODE`.
+- `preview.debounce_ms` (`int`): idle delay before a debounced preview refresh runs. Env: `BLOCKWIRE_PREVIEW_DEBOUNCE_MS`.
 
 ## Edit component namespace
 
@@ -45,6 +45,19 @@ Default:
 - `immediate`: refresh the preview on every content edit.
 - `debounced`: queue content edits and refresh after a short idle pause.
 - `manual`: keep the preview stale until the editor user clicks refresh.
+- `preview.debounce_ms` is only used when `preview.mode` is `debounced`.
+
+Environment example:
+
+```dotenv
+BLOCKWIRE_PREVIEW_MODE=manual
+BLOCKWIRE_PREVIEW_DEBOUNCE_MS=250
+```
+
+Precedence:
+
+- Component props such as `previewMode` and `previewDebounceMs` override config.
+- Config values can now be sourced from `.env` using the variables above.
 
 Structural actions such as insert, clone, delete, reorder, visibility toggles, undo, and redo always refresh immediately.
 

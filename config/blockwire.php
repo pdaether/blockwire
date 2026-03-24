@@ -25,8 +25,8 @@ return [
     'show_source_button' => true,
 
     'preview' => [
-        'mode' => 'debounced',
-        'debounce_ms' => 150,
+        'mode' => env('BLOCKWIRE_PREVIEW_MODE', 'debounced'),
+        'debounce_ms' => (int) env('BLOCKWIRE_PREVIEW_DEBOUNCE_MS', 150),
     ],
 
     /*
