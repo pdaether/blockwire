@@ -10,8 +10,6 @@ use Pdaether\BlockWire\Parsers\Parse;
 
 class BlockWire extends Component
 {
-    public bool $initialRender = true;
-
     public ?string $title = null;
 
     public string $base = 'blockwire::base';
@@ -33,6 +31,16 @@ class BlockWire extends Component
     public ?array $buttons = null;
 
     public ?array $blocks = null;
+
+    public ?string $previewMode = null;
+
+    public int|string|null $previewDebounceMs = null;
+
+    public bool $previewDirty = false;
+
+    public string $lastRenderedPreviewFingerprint = '';
+
+    protected bool $shouldRefreshPreview = false;
 
     protected function normalizeShowFlag(mixed $value): bool
     {
@@ -69,6 +77,62 @@ class BlockWire extends Component
         $this->dispatch('activeBlockIndexChanged', $value);
     }
 
+    protected function normalizePreviewMode(?string $value): string
+    {
+        $value = strtolower(trim((string) $value));
+
+        return in_array($value, ['immediate', 'debounced', 'manual'], true)
+            ? $value
+            : 'debounced';
+    }
+
+    protected function normalizePreviewDebounceMs(int|string|null $value): int
+    {
+        if ($value === null || $value === '') {
+            return 150;
+        }
+
+        return max(0, (int) $value);
+    }
+
+    protected function previewFingerprint(): string
+    {
+        return md5(serialize([
+            'activeBlocks' => $this->activeBlocks,
+            'base' => $this->base,
+            'parsers' => $this->parsers,
+        ]));
+    }
+
+    protected function shouldRenderPreview(): bool
+    {
+        return $this->shouldRefreshPreview || $this->lastRenderedPreviewFingerprint === '';
+    }
+
+    protected function requestPreviewRefresh(): void
+    {
+        $this->shouldRefreshPreview = true;
+    }
+
+    protected function dispatchEditorUpdated(): void
+    {
+        $this->dispatch('editorIsUpdated', $this->updateProperties());
+    }
+
+    protected function dispatchPreviewDirty(): void
+    {
+        $this->dispatch('blockwirePreviewDirty',
+            componentId: $this->getId(),
+            mode: $this->previewMode,
+            debounceMs: $this->previewDebounceMs,
+        );
+    }
+
+    protected function dispatchPreviewClean(): void
+    {
+        $this->dispatch('blockwirePreviewClean', componentId: $this->getId());
+    }
+
     public function updatedActiveBlockIndex(int|string|false $value): void
     {
         $this->dispatch('activeBlockIndexChanged', $value);
@@ -101,6 +165,8 @@ class BlockWire extends Component
         $this->activeBlocks = $this->history[$this->historyIndex]['activeBlocks'];
         $this->setActiveBlockIndex($this->history[$this->historyIndex]['activeBlockIndex']);
         $this->updateHash();
+        $this->requestPreviewRefresh();
+        $this->dispatchEditorUpdated();
     }
 
     public function updateHash(): void
@@ -119,6 +185,8 @@ class BlockWire extends Component
         $this->activeBlocks = $this->history[$this->historyIndex]['activeBlocks'];
         $this->setActiveBlockIndex($this->history[$this->historyIndex]['activeBlockIndex']);
         $this->updateHash();
+        $this->requestPreviewRefresh();
+        $this->dispatchEditorUpdated();
     }
 
     public function recordInHistory(): void
@@ -139,26 +207,61 @@ class BlockWire extends Component
 
     public function blockUpdated(int $position, array $data): void
     {
+        if (! isset($this->activeBlocks[$position])) {
+            return;
+        }
+
+        if (($this->activeBlocks[$position]['data'] ?? null) === $data) {
+            return;
+        }
+
         $this->activeBlocks[$position]['data'] = $data;
 
         $this->recordInHistory();
+        $this->dispatchEditorUpdated();
+
+        if ($this->previewMode === 'immediate') {
+            $this->requestPreviewRefresh();
+
+            return;
+        }
+
+        $this->previewDirty = true;
+        $this->dispatchPreviewDirty();
+        $this->skipRender();
     }
 
     public function process(): void
     {
-        $this->result = Parse::execute([
-            'activeBlocks' => $this->activeBlocks,
-            'base' => $this->base,
-            'context' => 'editor',
-            'parsers' => $this->parsers,
-        ]);
+        if (! $this->shouldRenderPreview()) {
+            return;
+        }
+
+        $wasPreviewDirty = $this->previewDirty;
+        $fingerprint = $this->previewFingerprint();
+
+        if ($fingerprint !== $this->lastRenderedPreviewFingerprint) {
+            $this->result = Parse::execute([
+                'activeBlocks' => $this->activeBlocks,
+                'base' => $this->base,
+                'context' => 'editor',
+                'parsers' => $this->parsers,
+            ]);
+
+            $this->lastRenderedPreviewFingerprint = $fingerprint;
+        }
+
+        $this->previewDirty = false;
+        $this->shouldRefreshPreview = false;
+
+        if ($wasPreviewDirty) {
+            $this->dispatchPreviewClean();
+        }
     }
 
     public function blockSelected($blockId): void
     {
         $this->setActiveBlockIndex($blockId);
-
-        $this->recordInHistory();
     }
 
     public function cloneBlock(?int $blockId = null): void
@@ -176,6 +279,8 @@ class BlockWire extends Component
         $this->setActiveBlockIndex(array_key_last($this->activeBlocks));
 
         $this->recordInHistory();
+        $this->requestPreviewRefresh();
+        $this->dispatchEditorUpdated();
     }
 
     public function toggleBlockVisibility(?int $blockId = null): void
@@ -190,6 +295,8 @@ class BlockWire extends Component
         $this->activeBlocks[$index]['show'] = ! $visible;
 
         $this->recordInHistory();
+        $this->requestPreviewRefresh();
+        $this->dispatchEditorUpdated();
     }
 
     public function deleteBlock(?int $blockId = null): void
@@ -207,6 +314,8 @@ class BlockWire extends Component
         $this->activeBlocks = array_values($this->activeBlocks);
 
         $this->recordInHistory();
+        $this->requestPreviewRefresh();
+        $this->dispatchEditorUpdated();
     }
 
     public function getBlockFromClassName(string $name): BlockInterface
@@ -233,10 +342,13 @@ class BlockWire extends Component
             ->all();
 
         $this->buttons = ! is_null($this->buttons) ? $this->buttons : config('blockwire.buttons', []);
+        $this->previewMode = $this->normalizePreviewMode($this->previewMode ?? config('blockwire.preview.mode', 'debounced'));
+        $this->previewDebounceMs = $this->normalizePreviewDebounceMs($this->previewDebounceMs ?? config('blockwire.preview.debounce_ms', 150));
 
         $this->normalizeActiveBlocks();
 
         $this->updateHash();
+        $this->requestPreviewRefresh();
 
         $this->recordInHistory();
     }
@@ -249,9 +361,9 @@ class BlockWire extends Component
             })
             ->all();
 
-        $this->dispatch('editorIsUpdated', $this->updateProperties());
-
         $this->recordInHistory();
+        $this->requestPreviewRefresh();
+        $this->dispatchEditorUpdated();
     }
 
     public function insertBlock(int $id, ?int $index = null, ?string $placement = null): void
@@ -262,6 +374,8 @@ class BlockWire extends Component
             $this->setActiveBlockIndex(count($this->activeBlocks));
             $this->activeBlocks[] = $block;
             $this->recordInHistory();
+            $this->requestPreviewRefresh();
+            $this->dispatchEditorUpdated();
 
             return;
         }
@@ -276,6 +390,13 @@ class BlockWire extends Component
         $this->setActiveBlockIndex($newIndex);
 
         $this->recordInHistory();
+        $this->requestPreviewRefresh();
+        $this->dispatchEditorUpdated();
+    }
+
+    public function refreshPreview(): void
+    {
+        $this->requestPreviewRefresh();
     }
 
     public function prepareActiveBlockKey(int|false $activeBlockIndex): string
@@ -300,12 +421,6 @@ class BlockWire extends Component
     public function render()
     {
         $this->process();
-
-        if (! $this->initialRender) {
-            $this->dispatch('editorIsUpdated', $this->updateProperties());
-        }
-
-        $this->initialRender = false;
 
         return view('blockwire::editor', [
             'activeBlock' => $this->getActiveBlock(),

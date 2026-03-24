@@ -8,7 +8,11 @@
 
     <div
         x-cloak
-        x-data="blockwire()"
+        x-data="blockwire({
+            previewMode: @js($previewMode),
+            previewDebounceMs: @js($previewDebounceMs),
+            previewDirty: @js($previewDirty),
+        })"
         class="blockwire flex flex-col min-h-screen overflow-hidden rounded-2xl border border-gray-200 bg-gray-100 text-gray-800 shadow-sm">
         <div class="{{ config('blockwire.brand.colors.topbar_bg', 'bg-white') }} px-5 py-4 border-b border-gray-200 flex flex-initial items-center gap-4 text-gray-700">
             <div class="flex items-center flex-1">
@@ -55,6 +59,28 @@
                         </button>
                     </div>
 
+                    <div class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 shadow-sm">
+                        <span
+                            class="h-2.5 w-2.5 rounded-full transition-colors"
+                            :class="previewRefreshInFlight
+                                ? 'bg-blue-500'
+                                : (previewMode === 'manual'
+                                ? (previewDirty ? 'bg-orange-500' : 'bg-gray-300')
+                                : (previewRefreshQueued ? 'bg-orange-500' : 'bg-green-500'))">
+                        </span>
+                        <span x-text="previewStatusLabel()"></span>
+                        <button
+                            x-cloak
+                            x-show="previewMode === 'manual' && previewDirty"
+                            x-on:click="refreshPreview()"
+                            :disabled="previewRefreshInFlight"
+                            class="rounded-md border border-gray-200 px-2 py-1 text-xs text-gray-700 transition-colors hover:bg-gray-50"
+                            :class="previewRefreshInFlight ? 'cursor-wait opacity-50' : ''"
+                            type="button">
+                            {{ __('Refresh') }}
+                        </button>
+                    </div>
+
                     @if(config('blockwire.show_source_button', true))
                     <div class="flex items-center bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
                         <button
@@ -97,7 +123,13 @@
 
             <div x-ref="previewContainer" class="relative flex flex-1 justify-center overflow-x-auto min-w-0 p-4 md:p-6">
                 <iframe id="frame" srcdoc="{{ $result }}" class="h-full shrink-0 rounded-xl border border-gray-200 bg-white shadow-sm" :style="`width: ${previewWidth()}px`"></iframe>
-                <div wire:loading class="absolute right-5 bottom-5">
+                <div x-cloak x-show="previewMode === 'immediate'" wire:loading wire:target="blockUpdated" class="absolute right-5 bottom-5">
+                    <svg class="animate-spin h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+                <div wire:loading wire:target="insertBlock,cloneBlock,deleteBlock,reorder,toggleBlockVisibility,undo,redo,refreshPreview" class="absolute right-5 bottom-5">
                     <svg class="animate-spin h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>

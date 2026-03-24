@@ -69,7 +69,7 @@ class Faq extends Block implements BlockInterface
 
 ## Edit form anatomy
 
-Edit forms extend `BlockEditComponent`. It already syncs normal field changes through `updated()`.
+Edit forms extend `BlockEditComponent`. It already syncs normal field changes through `updated()`, and the editor decides whether preview refreshes happen immediately, after a debounce, or manually.
 
 When you mutate arrays in custom methods (for example `addItem()` / `removeItem()`), dispatch manually:
 

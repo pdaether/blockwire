@@ -3,7 +3,21 @@
 use Livewire\Livewire;
 use Pdaether\BlockWire\Blocks\Example;
 use Pdaether\BlockWire\Components\BlockWire;
+use Pdaether\BlockWire\Parsers\Editor;
+use Pdaether\BlockWire\Parsers\Html;
 use Pdaether\BlockWire\Parsers\Parse;
+use Pdaether\BlockWire\Tests\Fixtures\Parsers\CountingHtmlParser;
+
+beforeEach(function () {
+    config()->set('blockwire.parsers', [
+        Html::class,
+        Editor::class,
+    ]);
+    config()->set('blockwire.preview.mode', 'debounced');
+    config()->set('blockwire.preview.debounce_ms', 150);
+
+    CountingHtmlParser::reset();
+});
 
 it('can render the editor', function () {
     Livewire::test(BlockWire::class, [
@@ -162,4 +176,165 @@ it('still renders hidden blocks in editor context', function () {
     expect($html)
         ->toContain('Hidden content')
         ->toContain('data-show="0"');
+});
+
+it('renders the preview once on initial mount', function () {
+    config()->set('blockwire.parsers', [CountingHtmlParser::class]);
+
+    Livewire::test(BlockWire::class, [
+        'title' => 'The name of the campaign',
+    ]);
+
+    expect(CountingHtmlParser::$parseCount)->toBe(1);
+});
+
+it('does not rebuild preview for selection-only changes', function () {
+    config()->set('blockwire.parsers', [CountingHtmlParser::class]);
+
+    $editor = Livewire::test(BlockWire::class, [
+        'title' => 'The name of the campaign',
+    ])
+        ->call('insertBlock', 0);
+
+    expect(CountingHtmlParser::$parseCount)->toBe(2);
+
+    $editor
+        ->call('blockSelected', 0)
+        ->assertNotDispatched('editorIsUpdated');
+
+    expect(CountingHtmlParser::$parseCount)->toBe(2);
+});
+
+it('marks preview dirty without rebuilding it for debounced content edits', function () {
+    config()->set('blockwire.parsers', [CountingHtmlParser::class]);
+
+    $editor = Livewire::test(BlockWire::class, [
+        'title' => 'The name of the campaign',
+        'previewMode' => 'debounced',
+    ])
+        ->call('insertBlock', 0);
+
+    CountingHtmlParser::reset();
+
+    $editor
+        ->call('blockUpdated', 0, [
+            'title' => 'Updated title',
+            'content' => 'Updated content',
+        ])
+        ->assertSet('activeBlocks.0.data.title', 'Updated title')
+        ->assertSet('previewDirty', true)
+        ->assertDispatched('editorIsUpdated')
+        ->assertDispatched('blockwirePreviewDirty', function ($event, $params) {
+            return $event === 'blockwirePreviewDirty'
+                && $params['mode'] === 'debounced'
+                && $params['debounceMs'] === 150;
+        });
+
+    expect(CountingHtmlParser::$parseCount)->toBe(0);
+});
+
+it('refreshes the preview on demand for debounced edits', function () {
+    config()->set('blockwire.parsers', [CountingHtmlParser::class]);
+
+    $editor = Livewire::test(BlockWire::class, [
+        'title' => 'The name of the campaign',
+        'previewMode' => 'debounced',
+    ])
+        ->call('insertBlock', 0);
+
+    CountingHtmlParser::reset();
+
+    $editor->call('blockUpdated', 0, [
+        'title' => 'Updated title',
+        'content' => 'Updated content',
+    ]);
+
+    expect(CountingHtmlParser::$parseCount)->toBe(0);
+
+    $editor
+        ->call('refreshPreview')
+        ->assertSet('previewDirty', false)
+        ->assertDispatched('blockwirePreviewClean');
+
+    expect(CountingHtmlParser::$parseCount)->toBe(1);
+});
+
+it('keeps manual preview stale until explicitly refreshed', function () {
+    config()->set('blockwire.parsers', [CountingHtmlParser::class]);
+
+    $editor = Livewire::test(BlockWire::class, [
+        'title' => 'The name of the campaign',
+        'previewMode' => 'manual',
+    ])
+        ->call('insertBlock', 0);
+
+    CountingHtmlParser::reset();
+
+    $editor
+        ->call('blockUpdated', 0, [
+            'title' => 'Updated title',
+            'content' => 'Updated content',
+        ])
+        ->assertSet('previewDirty', true);
+
+    expect(CountingHtmlParser::$parseCount)->toBe(0);
+
+    $editor->call('blockSelected', 0);
+
+    expect(CountingHtmlParser::$parseCount)->toBe(0);
+
+    $editor
+        ->call('refreshPreview')
+        ->assertSet('previewDirty', false);
+
+    expect(CountingHtmlParser::$parseCount)->toBe(1);
+});
+
+it('refreshes preview immediately for structural changes even when preview is dirty', function () {
+    config()->set('blockwire.parsers', [CountingHtmlParser::class]);
+
+    $editor = Livewire::test(BlockWire::class, [
+        'title' => 'The name of the campaign',
+        'previewMode' => 'manual',
+    ])
+        ->call('insertBlock', 0);
+
+    CountingHtmlParser::reset();
+
+    $editor->call('blockUpdated', 0, [
+        'title' => 'Updated title',
+        'content' => 'Updated content',
+    ]);
+
+    expect(CountingHtmlParser::$parseCount)->toBe(0);
+
+    $editor
+        ->call('toggleBlockVisibility')
+        ->assertSet('previewDirty', false)
+        ->assertDispatched('editorIsUpdated')
+        ->assertDispatched('blockwirePreviewClean');
+
+    expect(CountingHtmlParser::$parseCount)->toBe(1);
+});
+
+it('dispatches editor updates for content and structural changes but not selection-only changes', function () {
+    $editor = Livewire::test(BlockWire::class, [
+        'title' => 'The name of the campaign',
+        'previewMode' => 'debounced',
+    ]);
+
+    $editor
+        ->call('insertBlock', 0)
+        ->assertDispatched('editorIsUpdated');
+
+    $editor
+        ->call('blockSelected', 0)
+        ->assertNotDispatched('editorIsUpdated');
+
+    $editor
+        ->call('blockUpdated', 0, [
+            'title' => 'Updated title',
+            'content' => 'Updated content',
+        ])
+        ->assertDispatched('editorIsUpdated');
 });

@@ -1,6 +1,8 @@
 import '../css/editor.css';
 
 window.blockwire = (config) => {
+    config = config ?? {};
+
     return {
         iframe: null,
 
@@ -43,6 +45,18 @@ window.blockwire = (config) => {
         pendingPreviewChange: null,
 
         previewPositionsBeforeUpdate: null,
+
+        previewMode: config.previewMode ?? 'debounced',
+
+        previewDebounceMs: Number(config.previewDebounceMs ?? 150),
+
+        previewDirty: Boolean(config.previewDirty ?? false),
+
+        previewRefreshQueued: false,
+
+        previewRefreshInFlight: false,
+
+        previewRefreshTimer: null,
 
         // JSON Modal state
         showJsonModal: false,
@@ -97,6 +111,101 @@ window.blockwire = (config) => {
         closeJsonModal() {
             this.showJsonModal = false;
             this.copyStatus = '';
+        },
+
+        componentId() {
+            return this.$root.closest('[wire\\:id]')?.getAttribute('wire:id') ?? null;
+        },
+
+        normalizeEventPayload(value) {
+            if (Array.isArray(value)) {
+                if (value.length === 1) {
+                    return this.normalizeEventPayload(value[0]);
+                }
+
+                return {};
+            }
+
+            if (value && typeof value === 'object' && Object.prototype.hasOwnProperty.call(value, 'detail')) {
+                return this.normalizeEventPayload(value.detail);
+            }
+
+            if (value && typeof value === 'object') {
+                return value;
+            }
+
+            return {};
+        },
+
+        isForThisComponent(value) {
+            let payload = this.normalizeEventPayload(value);
+
+            return ! payload.componentId || payload.componentId === this.componentId();
+        },
+
+        clearPreviewRefreshTimer() {
+            if (this.previewRefreshTimer === null) {
+                return;
+            }
+
+            window.clearTimeout(this.previewRefreshTimer);
+            this.previewRefreshTimer = null;
+        },
+
+        queuePreviewRefresh(delay = null) {
+            this.clearPreviewRefreshTimer();
+
+            this.previewRefreshQueued = true;
+
+            this.previewRefreshTimer = window.setTimeout(() => {
+                this.refreshPreview();
+            }, delay ?? this.previewDebounceMs);
+        },
+
+        previewStatusLabel() {
+            if (this.previewRefreshInFlight) {
+                return 'Updating preview';
+            }
+
+            if (this.previewMode === 'manual') {
+                return this.previewDirty ? 'Preview stale' : 'Manual preview';
+            }
+
+            if (this.previewRefreshQueued) {
+                return 'Preview queued';
+            }
+
+            return 'Live preview';
+        },
+
+        async refreshPreview() {
+            if (this.previewRefreshInFlight) {
+                if (this.previewMode === 'debounced') {
+                    this.queuePreviewRefresh();
+                }
+
+                return;
+            }
+
+            if (! this.previewDirty && ! this.previewRefreshQueued) {
+                return;
+            }
+
+            this.clearPreviewRefreshTimer();
+            this.previewRefreshQueued = false;
+            this.previewRefreshInFlight = true;
+
+            try {
+                await this.component().call('refreshPreview');
+            } catch (e) {
+                console.error('Failed to refresh preview:', e);
+            } finally {
+                this.previewRefreshInFlight = false;
+
+                if (this.previewMode === 'debounced' && this.previewDirty) {
+                    this.queuePreviewRefresh();
+                }
+            }
         },
 
         getFrameWindow() {
@@ -453,6 +562,9 @@ window.blockwire = (config) => {
 
             this.dropList = document.querySelector("[drop-list]");
             this.activeBlockId = this.normalizeActiveBlockId(this.$wire.activeBlockIndex);
+            this.previewDebounceMs = Number.isFinite(Number(this.previewDebounceMs))
+                ? Math.max(0, Number(this.previewDebounceMs))
+                : 150;
 
             this.restorePanelWidth();
 
@@ -491,6 +603,38 @@ window.blockwire = (config) => {
 
                 this.activeBlockId = activeBlockId;
                 this.applyActiveBlockState();
+            });
+
+            Livewire.on('blockwirePreviewDirty', (data) => {
+                if (! this.isForThisComponent(data)) {
+                    return;
+                }
+
+                let payload = this.normalizeEventPayload(data);
+
+                this.previewDirty = true;
+
+                if (typeof payload.debounceMs !== 'undefined') {
+                    let debounceMs = Number(payload.debounceMs);
+
+                    if (Number.isFinite(debounceMs)) {
+                        this.previewDebounceMs = Math.max(0, debounceMs);
+                    }
+                }
+
+                if (this.previewMode === 'debounced') {
+                    this.queuePreviewRefresh();
+                }
+            });
+
+            Livewire.on('blockwirePreviewClean', (data) => {
+                if (! this.isForThisComponent(data)) {
+                    return;
+                }
+
+                this.previewDirty = false;
+                this.previewRefreshQueued = false;
+                this.clearPreviewRefreshTimer();
             });
         },
 
@@ -944,7 +1088,7 @@ window.blockwire = (config) => {
 
         component() {
             return Livewire.find(
-                frame.closest('[wire\\:id]').getAttribute('wire:id')
+                this.componentId()
             );
         },
 

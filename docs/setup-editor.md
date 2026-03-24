@@ -17,6 +17,8 @@ You can pass these from Blade:
 - `activeBlocks` (`array`)
 - `blocks` (`array`)
 - `buttons` (`array`)
+- `previewMode` (`string`)
+- `previewDebounceMs` (`int`)
 
 Example:
 
@@ -25,6 +27,8 @@ Example:
     'title' => 'Campaign Editor',
     'base' => 'mail.templates.newsletter',
     'activeBlocks' => json_decode($model->content_json ?? '[]', true),
+    'previewMode' => 'debounced',
+    'previewDebounceMs' => 150,
     'blocks' => [
         App\BlockWire\Blocks\Hero::class,
         App\BlockWire\Blocks\Faq::class,
@@ -56,6 +60,7 @@ Inside your full-page Livewire Blade view:
     :title="$title"
     :active-blocks="$activeBlocks"
     :base="$base"
+    preview-mode="manual"
     :buttons="[]"
 />
 ```

@@ -6,6 +6,26 @@ use DOMDocument;
 
 class Editor extends Parser implements ParserInterface
 {
+    protected static array $editorCssCache = [];
+
+    protected function resolveEditorCss(): string
+    {
+        $configCss = config('blockwire.preview_css');
+        $path = $configCss && file_exists(public_path($configCss))
+            ? public_path($configCss)
+            : __DIR__.'/../../public/editor.css';
+
+        $cacheKey = $path.'|'.(file_exists($path) ? filemtime($path) : 'missing');
+
+        if (! array_key_exists($cacheKey, self::$editorCssCache)) {
+            self::$editorCssCache[$cacheKey] = file_exists($path)
+                ? file_get_contents($path)
+                : '';
+        }
+
+        return self::$editorCssCache[$cacheKey];
+    }
+
     public function output(): string
     {
         if ($this->context !== 'editor') {
@@ -20,13 +40,7 @@ class Editor extends Parser implements ParserInterface
 
         libxml_use_internal_errors($internalErrors);
 
-        $configCss = config('blockwire.preview_css');
-
-        if ($configCss && file_exists(public_path($configCss))) {
-            $editorCss = file_get_contents(public_path($configCss));
-        } else {
-            $editorCss = file_get_contents(__DIR__.'/../../public/editor.css');
-        }
+        $editorCss = $this->resolveEditorCss();
 
         $activeBorderCss = '
             [drag-item]::before {

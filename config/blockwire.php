@@ -10,6 +10,7 @@ return [
     | include_js: Whether to load the editor JavaScript in the editor template.
     | include_css: Whether to load the editor CSS in the editor template.
     | preview_css: Public path to CSS to override in the preview.
+    | preview: Preview refresh strategy and debounce timing.
     | show_source_button: Whether to show the source code view button in the editor.
     | brand: Custom branding for the editor.
     |
@@ -22,6 +23,11 @@ return [
     'preview_css' => null,
 
     'show_source_button' => true,
+
+    'preview' => [
+        'mode' => 'debounced',
+        'debounce_ms' => 150,
+    ],
 
     /*
     |-----------------------------------------------------------------------------

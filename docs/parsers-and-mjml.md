@@ -47,3 +47,4 @@ Also configure:
 - HTML parser is fastest.
 - MJML adds overhead (API/network or local process time).
 - Consider caching rendered output after save instead of rendering on every request.
+- Prefer `preview.mode = manual` for MJML or very heavy templates so editors can batch changes before refreshing.

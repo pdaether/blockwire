@@ -8,6 +8,8 @@ Published file: `config/blockwire.php`
 - `include_css` (`bool`): include package editor CSS inline in editor view.
 - `preview_css` (`string|null`): custom CSS file from `public/` used in preview iframe.
 - `show_source_button` (`bool`): show JSON source modal button.
+- `preview.mode` (`string`): preview refresh strategy. Supported values: `immediate`, `debounced`, `manual`.
+- `preview.debounce_ms` (`int`): idle delay before a debounced preview refresh runs.
 
 ## Edit component namespace
 
@@ -28,6 +30,23 @@ This controls `php artisan blockwire:make` output location for edit components.
 - `buttons` (`array<class-string|string>`): default editor header buttons.
 
 Both can be overridden per component instance.
+
+## Preview behavior
+
+Default:
+
+```php
+[
+    'mode' => 'debounced',
+    'debounce_ms' => 150,
+]
+```
+
+- `immediate`: refresh the preview on every content edit.
+- `debounced`: queue content edits and refresh after a short idle pause.
+- `manual`: keep the preview stale until the editor user clicks refresh.
+
+Structural actions such as insert, clone, delete, reorder, visibility toggles, undo, and redo always refresh immediately.
 
 ## Parsers
 
