@@ -50,9 +50,9 @@ window.blockwire = (config) => {
         loadingJson: false,
         copyStatus: '',
 
-        insertBeforeClasses: ['after:opacity-100', 'after:top-0', 'after:h-[5px]'],
+        insertBeforeClasses: ['after:opacity-100', 'after:top-0', 'after:h-[4px]', 'after:bg-gray-500', 'after:rounded-full'],
 
-        insertAfterClasses: ['after:opacity-100', 'after:bottom-0', 'after:h-[5px]'],
+        insertAfterClasses: ['after:opacity-100', 'after:bottom-0', 'after:h-[4px]', 'after:bg-gray-500', 'after:rounded-full'],
 
         async openJsonModal() {
             this.loadingJson = true;
@@ -700,12 +700,14 @@ window.blockwire = (config) => {
 
                 el.addEventListener('dragenter', e => {
                     e.preventDefault();
-                    e.target.classList.add('bg-gray-200/50', 'animate-pulse');
+                    e.target.classList.add('border-gray-400', 'bg-gray-100/50', 'text-gray-500');
+                    e.target.classList.remove('border-gray-300', 'text-gray-400');
                 });
 
                 el.addEventListener('dragleave', e => {
                     e.preventDefault();
-                    e.target.classList.remove('bg-gray-200/50', 'animate-pulse');
+                    e.target.classList.remove('border-gray-400', 'bg-gray-100/50', 'text-gray-500');
+                    e.target.classList.add('border-gray-300', 'text-gray-400');
                 });
 
                 el.addEventListener('drop', e => {

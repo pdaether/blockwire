@@ -144,6 +144,15 @@ class Editor extends Parser implements ParserInterface
                 transform-origin: center;
             }
 
+            [drag-item]::after {
+                content: "";
+                transition: opacity 0.15s ease, height 0.15s ease;
+            }
+
+            [drop-placeholder] {
+                transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+            }
+
             [drag-item].blockwire-entering {
                 animation: blockwire-enter 280ms cubic-bezier(0.22, 1, 0.36, 1);
             }
