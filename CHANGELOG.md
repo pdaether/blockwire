@@ -4,6 +4,45 @@ All notable changes to `blockwire` will be documented in this file.
 
 ## Unreleased
 
+## 2.2.0 - 2026-03-24
+
+- Improve drop zone
+
+## 2.1.0 - 2026-02-26
+
+- Add a visibility flag to blocks
+
+## 2.0.1 - 2026-02-19
+
+- Activate new blocks by default
+
+## 2.0.0 - 2026-02-16
+
+- Upgrade to Livewire ^4.0 (⚠️ breaking change)
+
+## 1.0.1 - 2026-02-15
+
+- Add documentation
+- Update README
+
+## 1.0.0 - 2026-02-14
+
+- Rebranding package to BlockWire
+- Replace Laravel Mix with Vite
+- Add undo and redo buttons
+- Add action buttons to the block overlay
+- Display block name on mouse over and for active block
+- Add a permanent border to the selected element
+- Add button for getting the source code (JSON)
+- Add BlockInterface
+- Add types to increase type safety
+- Use full class names for block edit components
+- Make the side panel resizable
+- Move display options to the header
+- Put form classes in dedicated namespace
+- Fix broken layout on smaller screens in tablet mode
+- Fix re-ordering in history
+
 ## 0.4.0 - 2024-03-12
 
 - add support for laravel 11 (thanks @abr4xas)
