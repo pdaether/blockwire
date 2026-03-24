@@ -40,12 +40,39 @@ it('displays the example block', function () {
         ->assertSee('Example');
 });
 
+it('uses a viewport-locked shell and scrollable block library panel', function () {
+    $html = Livewire::test(BlockWire::class, [
+        'title' => 'The name of the campaign',
+    ])->html();
+
+    expect($html)
+        ->toContain('blockwire flex h-screen min-h-0 flex-col overflow-hidden')
+        ->toContain('x-ref="workspace" class="flex flex-1 min-h-0 bg-gray-50"')
+        ->toContain('x-ref="previewContainer" class="relative flex min-h-0 flex-1 justify-center overflow-x-auto min-w-0 p-4 md:p-6"')
+        ->toContain('class="relative flex min-h-0 shrink-0 flex-col overflow-hidden border-l border-gray-200 bg-white"')
+        ->toContain('class="flex min-h-0 flex-1 flex-col overflow-y-auto pb-4"');
+});
+
 it('displays the active block', function () {
     Livewire::test(BlockWire::class, [
         'title' => 'The name of the campaign',
     ])
         ->call('insertBlock', 0)
         ->assertSee('Drop it like it\'s hot');
+});
+
+it('keeps the active block header outside the scrollable form body', function () {
+    $html = Livewire::test(BlockWire::class, [
+        'title' => 'The name of the campaign',
+    ])
+        ->call('insertBlock', 0)
+        ->html();
+
+    expect($html)
+        ->toContain('wire:key="active-block-panel-0"')
+        ->toContain('class="flex h-full min-h-0 flex-1 flex-col"')
+        ->toContain('class="border-b border-gray-200 bg-gray-50 flex shrink-0 justify-between items-center"')
+        ->toContain('class="min-h-0 flex-1 overflow-y-auto p-4"');
 });
 
 it('activates a newly inserted block by default', function () {

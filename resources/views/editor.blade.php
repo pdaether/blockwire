@@ -13,8 +13,8 @@
             previewDebounceMs: @js($previewDebounceMs),
             previewDirty: @js($previewDirty),
         })"
-        class="blockwire flex flex-col min-h-screen overflow-hidden rounded-2xl border border-gray-200 bg-gray-100 text-gray-800 shadow-sm">
-        <div class="{{ config('blockwire.brand.colors.topbar_bg', 'bg-white') }} px-5 py-4 border-b border-gray-200 flex flex-initial items-center gap-4 text-gray-700">
+        class="blockwire flex h-screen min-h-0 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-gray-100 text-gray-800 shadow-sm">
+        <div class="{{ config('blockwire.brand.colors.topbar_bg', 'bg-white') }} px-5 py-4 border-b border-gray-200 flex shrink-0 items-center gap-4 text-gray-700">
             <div class="flex items-center flex-1">
                 @if($logo = config('blockwire.brand.logo', false))
                     <div class="mr-2">{!! $logo !!}</div>
@@ -119,9 +119,9 @@
             </div>
         </div>
 
-        <div x-ref="workspace" class="flex flex-initial h-full grow min-h-0 bg-gray-50">
+        <div x-ref="workspace" class="flex flex-1 min-h-0 bg-gray-50">
 
-            <div x-ref="previewContainer" class="relative flex flex-1 justify-center overflow-x-auto min-w-0 p-4 md:p-6">
+            <div x-ref="previewContainer" class="relative flex min-h-0 flex-1 justify-center overflow-x-auto min-w-0 p-4 md:p-6">
                 <iframe id="frame" srcdoc="{{ $result }}" class="h-full shrink-0 rounded-xl border border-gray-200 bg-white shadow-sm" :style="`width: ${previewWidth()}px`"></iframe>
                 <div x-cloak x-show="previewMode === 'immediate'" wire:loading wire:target="blockUpdated" class="absolute right-5 bottom-5">
                     <svg class="animate-spin h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -151,13 +151,12 @@
                 role="separator">
             </button>
 
-            <aside x-cloak x-show="sidebarVisible" class="shrink-0 relative bg-white overflow-hidden border-l border-gray-200" :style="panelStyle()">
-                <div class="h-full overflow-auto">
+            <aside x-cloak x-show="sidebarVisible" class="relative flex min-h-0 shrink-0 flex-col overflow-hidden border-l border-gray-200 bg-white" :style="panelStyle()">
                 <div
                     drop-list
                     x-cloak
                     x-show="$wire.activeBlockIndex === false"
-                    class="flex flex-col pb-4">
+                    class="flex min-h-0 flex-1 flex-col overflow-y-auto pb-4">
                     @php
                         $blockGroups = collect($blocks)->map(function($block, $i) {
                             return [
@@ -201,8 +200,8 @@
                 </div>
 
                 @if($activeBlock)
-                <div wire:key="active-block-panel-{{ $activeBlockIndex }}" wire:transition class="border-b border-gray-200 mb-4">
-                    <div class="border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                <div wire:key="active-block-panel-{{ $activeBlockIndex }}" wire:transition class="flex h-full min-h-0 flex-1 flex-col">
+                    <div class="border-b border-gray-200 bg-gray-50 flex shrink-0 justify-between items-center">
                         <div class="flex items-center min-w-0 flex-1">
                             <button wire:click="$set('activeBlockIndex', false)" class="shrink-0 p-4 text-gray-500 hover:text-gray-800 hover:bg-gray-100 border-r border-gray-200">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
@@ -268,7 +267,7 @@
                         </div>
                     </div>
 
-                    <div class="p-4">
+                    <div class="min-h-0 flex-1 overflow-y-auto p-4">
                         @if(!empty($activeBlock->blockEditComponent))
                             <div class="mb-4">
                                 @livewire($activeBlock->blockEditComponent, [
@@ -282,7 +281,6 @@
                     </div>
                 </div>
                 @endif
-                </div>
             </aside>
         </div>
 
