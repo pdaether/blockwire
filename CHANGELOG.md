@@ -4,6 +4,10 @@ All notable changes to `blockwire` will be documented in this file.
 
 ## Unreleased
 
+## 2.3.1 - 2026-03-26
+
+- Cleanup UI
+
 ## 2.3.0 - 2026-03-24
 
 - Improve scrolling in forms
