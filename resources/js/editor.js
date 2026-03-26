@@ -162,22 +162,6 @@ window.blockwire = (config) => {
             }, delay ?? this.previewDebounceMs);
         },
 
-        previewStatusLabel() {
-            if (this.previewRefreshInFlight) {
-                return 'Updating preview';
-            }
-
-            if (this.previewMode === 'manual') {
-                return this.previewDirty ? 'Preview stale' : 'Manual preview';
-            }
-
-            if (this.previewRefreshQueued) {
-                return 'Preview queued';
-            }
-
-            return 'Live preview';
-        },
-
         async refreshPreview() {
             if (this.previewRefreshInFlight) {
                 if (this.previewMode === 'debounced') {

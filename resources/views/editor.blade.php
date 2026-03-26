@@ -59,27 +59,22 @@
                         </button>
                     </div>
 
-                    <div class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 shadow-sm">
-                        <span
-                            class="h-2.5 w-2.5 rounded-full transition-colors"
-                            :class="previewRefreshInFlight
-                                ? 'bg-blue-500'
-                                : (previewMode === 'manual'
-                                ? (previewDirty ? 'bg-orange-500' : 'bg-gray-300')
-                                : (previewRefreshQueued ? 'bg-orange-500' : 'bg-green-500'))">
-                        </span>
-                        <span x-text="previewStatusLabel()"></span>
+                    @if($previewMode === 'manual')
+                    <div class="flex items-center bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
                         <button
-                            x-cloak
-                            x-show="previewMode === 'manual' && previewDirty"
                             x-on:click="refreshPreview()"
-                            :disabled="previewRefreshInFlight"
-                            class="rounded-md border border-gray-200 px-2 py-1 text-xs text-gray-700 transition-colors hover:bg-gray-50"
-                            :class="previewRefreshInFlight ? 'cursor-wait opacity-50' : ''"
+                            :disabled="! previewDirty || previewRefreshInFlight"
+                            class="p-2 text-gray-800 transition-colors hover:bg-gray-50"
+                            :class="(! previewDirty || previewRefreshInFlight) ? 'cursor-not-allowed opacity-40' : ''"
+                            aria-label="Refresh preview"
+                            title="Refresh preview"
                             type="button">
-                            {{ __('Refresh') }}
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6" :class="previewRefreshInFlight ? 'animate-spin' : ''">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                            </svg>
                         </button>
                     </div>
+                    @endif
 
                     @if(config('blockwire.show_source_button', true))
                     <div class="flex items-center bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">

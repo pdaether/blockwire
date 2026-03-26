@@ -75,6 +75,48 @@ it('keeps the active block header outside the scrollable form body', function ()
         ->toContain('class="min-h-0 flex-1 overflow-y-auto p-4"');
 });
 
+it('does not render preview status ui in debounced mode', function () {
+    $html = Livewire::test(BlockWire::class, [
+        'title' => 'The name of the campaign',
+        'previewMode' => 'debounced',
+    ])->html();
+
+    expect($html)
+        ->not->toContain('Live preview')
+        ->not->toContain('Manual preview')
+        ->not->toContain('Preview stale')
+        ->not->toContain('title="Refresh preview"')
+        ->not->toContain('aria-label="Refresh preview"');
+});
+
+it('does not render preview status ui in immediate mode', function () {
+    $html = Livewire::test(BlockWire::class, [
+        'title' => 'The name of the campaign',
+        'previewMode' => 'immediate',
+    ])->html();
+
+    expect($html)
+        ->not->toContain('Live preview')
+        ->not->toContain('Manual preview')
+        ->not->toContain('Preview stale')
+        ->not->toContain('title="Refresh preview"')
+        ->not->toContain('aria-label="Refresh preview"');
+});
+
+it('renders a single icon-only refresh control in manual mode', function () {
+    $html = Livewire::test(BlockWire::class, [
+        'title' => 'The name of the campaign',
+        'previewMode' => 'manual',
+    ])->html();
+
+    expect($html)
+        ->toContain('aria-label="Refresh preview"')
+        ->toContain('title="Refresh preview"')
+        ->not->toContain('Live preview')
+        ->not->toContain('Manual preview')
+        ->not->toContain('Preview stale');
+});
+
 it('activates a newly inserted block by default', function () {
     Livewire::test(BlockWire::class, [
         'title' => 'The name of the campaign',
