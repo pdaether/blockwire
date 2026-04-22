@@ -568,7 +568,7 @@ window.blockwire = (config) => {
 
             this.initListeners()
 
-            this.iframe.addEventListener("load", () => {
+            const onIframeReady = () => {
                 this.initListeners()
                 this.activeBlockId = this.normalizeActiveBlockId(this.$wire.activeBlockIndex);
                 this.applyActiveBlockState(this.iframe.contentWindow.document);
@@ -576,7 +576,17 @@ window.blockwire = (config) => {
                 this.iframe.contentWindow.scrollTo(0, this.lastTopPos)
 
                 this.applyPendingPreviewAnimation()
+            };
+
+            this.iframe.addEventListener("load", () => {
+                onIframeReady();
             })
+
+            // Handle race condition: if the iframe (using srcdoc) has already
+            // loaded before the load listener was attached, trigger manually.
+            if (this.iframe.contentDocument && this.iframe.contentDocument.readyState === 'complete' && this.iframe.contentDocument.documentElement) {
+                onIframeReady();
+            }
 
             Livewire.on('activeBlockIndexChanged', (data) => {
                 let activeBlockId = this.normalizeActiveBlockId(data);
@@ -787,7 +797,7 @@ window.blockwire = (config) => {
         initListeners() {
             let root = this.getFrameDocument();
 
-            if (! root) {
+            if (! root || ! root.documentElement) {
                 return;
             }
 
