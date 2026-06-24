@@ -46,6 +46,8 @@ window.blockwire = (config) => {
 
         previewPositionsBeforeUpdate: null,
 
+        addContentLabel: config.addContentLabel ?? 'Add content',
+
         previewMode: config.previewMode ?? 'debounced',
 
         previewDebounceMs: Number(config.previewDebounceMs ?? 150),
@@ -833,10 +835,12 @@ window.blockwire = (config) => {
 
                     el.addEventListener("dragstart", e => {
                         e.target.setAttribute('inserting', true);
+                        this.showInsertZones(root);
                     });
 
                     el.addEventListener('dragend', e => {
                         e.target.removeAttribute('inserting');
+                        this.hideInsertZones(root);
                     });
 
                     el.addEventListener('dragover', e => e.preventDefault());
@@ -1051,6 +1055,64 @@ window.blockwire = (config) => {
                     this.component().call('reorder', orderIds);
                 });
             });
+        },
+
+        showInsertZones(root) {
+            let items = Array.from(root.querySelectorAll('[drag-item]'));
+
+            if (! items.length) {
+                return;
+            }
+
+            let container = items[0].parentElement;
+
+            items.forEach((item, i) => {
+                let zone = this.createInsertZone(root, i === 0 ? 0 : i - 1, i === 0 ? 'before' : 'after');
+                container.insertBefore(zone, item);
+            });
+
+            container.appendChild(this.createInsertZone(root, items.length - 1, 'after'));
+        },
+
+        hideInsertZones(root) {
+            root.querySelectorAll('[data-bw-insert-zone]').forEach(el => el.remove());
+        },
+
+        createInsertZone(root, index, placement) {
+            let zone = root.createElement('div');
+
+            zone.setAttribute('data-bw-insert-zone', '');
+            zone.textContent = this.addContentLabel;
+
+            zone.addEventListener('dragover', e => e.preventDefault());
+
+            zone.addEventListener('dragenter', e => {
+                e.preventDefault();
+                zone.classList.add('bw-insert-zone-active');
+            });
+
+            zone.addEventListener('dragleave', e => {
+                e.preventDefault();
+                zone.classList.remove('bw-insert-zone-active');
+            });
+
+            zone.addEventListener('drop', e => {
+                e.preventDefault();
+
+                let insertingEl = document.querySelector('[inserting]');
+
+                if (! insertingEl) {
+                    return;
+                }
+
+                this.queuePreviewChange('insert', { index, placement });
+                this.component().call('insertBlock', insertingEl.dataset.block, index, placement);
+
+                insertingEl.removeAttribute('inserting');
+                this.hideInsertZones(root);
+            });
+
+            return zone;
         },
 
         isBefore(container, target, current) {
