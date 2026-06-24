@@ -12,6 +12,7 @@
             previewMode: @js($previewMode),
             previewDebounceMs: @js($previewDebounceMs),
             previewDirty: @js($previewDirty),
+            addContentLabel: @js(__('Add content')),
         })"
         class="blockwire flex h-screen min-h-0 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-gray-100 text-gray-800 shadow-sm">
         <div class="{{ config('blockwire.brand.colors.topbar_bg', 'bg-white') }} px-5 py-4 border-b border-gray-200 flex shrink-0 items-center gap-4 text-gray-700">

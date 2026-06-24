@@ -46,6 +46,8 @@ window.blockwire = (config) => {
 
         previewPositionsBeforeUpdate: null,
 
+        addContentLabel: config.addContentLabel ?? 'Add content',
+
         previewMode: config.previewMode ?? 'debounced',
 
         previewDebounceMs: Number(config.previewDebounceMs ?? 150),
@@ -807,6 +809,22 @@ window.blockwire = (config) => {
                 root.documentElement.setAttribute('data-bw-shortcuts-bound', '1');
             }
 
+            if (! root.documentElement.hasAttribute('data-bw-deselect-bound')) {
+                root.addEventListener('click', (e) => {
+                    if (e.target.closest('[drag-item]')) {
+                        return;
+                    }
+
+                    this.activeBlockId = false;
+                    this.applyActiveBlockState(root);
+
+                    Livewire.dispatch('blockEditComponentSelected', {
+                        blockId: false
+                    });
+                });
+                root.documentElement.setAttribute('data-bw-deselect-bound', '1');
+            }
+
             if (this.dropList) {
                 this.dropList.querySelectorAll('[drag-item]').forEach(el => {
                     if (el.dataset.bwPickerBound === '1') {
@@ -817,10 +835,12 @@ window.blockwire = (config) => {
 
                     el.addEventListener("dragstart", e => {
                         e.target.setAttribute('inserting', true);
+                        this.showInsertZones(root);
                     });
 
                     el.addEventListener('dragend', e => {
                         e.target.removeAttribute('inserting');
+                        this.hideInsertZones(root);
                     });
 
                     el.addEventListener('dragover', e => e.preventDefault());
@@ -936,6 +956,11 @@ window.blockwire = (config) => {
                 el.addEventListener('dragstart', e => {
                     e.target.setAttribute('dragging', true);
                     this.currentDragItem = el;
+
+                    // Defer so the DOM mutation doesn't happen while the
+                    // browser is still capturing the drag image, which can
+                    // otherwise abort the native drag in some browsers.
+                    window.setTimeout(() => this.showInsertZones(root), 0);
                 });
 
                 el.addEventListener('dragover', e => {
@@ -965,6 +990,7 @@ window.blockwire = (config) => {
                 el.addEventListener('dragend', e => {
                     e.target.removeAttribute('dragging');
                     this.currentDragItem = null;
+                    this.hideInsertZones(root);
                 });
 
                 el.addEventListener('dragenter', e => {
@@ -1035,6 +1061,93 @@ window.blockwire = (config) => {
                     this.component().call('reorder', orderIds);
                 });
             });
+        },
+
+        showInsertZones(root) {
+            let items = Array.from(root.querySelectorAll('[drag-item]'));
+
+            if (! items.length) {
+                return;
+            }
+
+            let container = items[0].parentElement;
+
+            items.forEach((item, i) => {
+                let zone = this.createInsertZone(root, i === 0 ? 0 : i - 1, i === 0 ? 'before' : 'after');
+                container.insertBefore(zone, item);
+            });
+
+            container.appendChild(this.createInsertZone(root, items.length - 1, 'after'));
+        },
+
+        hideInsertZones(root) {
+            root.querySelectorAll('[data-bw-insert-zone]').forEach(el => el.remove());
+        },
+
+        createInsertZone(root, index, placement) {
+            let zone = root.createElement('div');
+
+            zone.setAttribute('data-bw-insert-zone', '');
+            zone.textContent = this.addContentLabel;
+
+            zone.addEventListener('dragover', e => e.preventDefault());
+
+            zone.addEventListener('dragenter', e => {
+                e.preventDefault();
+                zone.classList.add('bw-insert-zone-active');
+            });
+
+            zone.addEventListener('dragleave', e => {
+                e.preventDefault();
+                zone.classList.remove('bw-insert-zone-active');
+            });
+
+            zone.addEventListener('drop', e => {
+                e.preventDefault();
+
+                let insertingEl = document.querySelector('[inserting]');
+
+                if (insertingEl) {
+                    this.queuePreviewChange('insert', { index, placement });
+                    this.component().call('insertBlock', insertingEl.dataset.block, index, placement);
+
+                    insertingEl.removeAttribute('inserting');
+                    this.hideInsertZones(root);
+
+                    return;
+                }
+
+                let draggingEl = root.querySelector('[dragging]');
+
+                if (! draggingEl) {
+                    return;
+                }
+
+                let targetItem = root.querySelector(`[drag-item][data-block="${index}"]`);
+
+                if (! targetItem || targetItem === draggingEl) {
+                    return;
+                }
+
+                this.lastTopPos = root.documentElement.scrollTop;
+
+                this.animateCurrentLayoutShift(root, () => {
+                    if (placement === 'after') {
+                        targetItem.after(draggingEl);
+                    } else {
+                        targetItem.before(draggingEl);
+                    }
+                });
+
+                let orderIds = Array.from(root.querySelectorAll('[drag-item]'))
+                    .map(itemEl => itemEl.dataset.block);
+
+                this.component().call('reorder', orderIds);
+
+                this.hideInsertZones(root);
+            });
+
+            return zone;
         },
 
         isBefore(container, target, current) {

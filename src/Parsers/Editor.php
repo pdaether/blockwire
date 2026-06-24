@@ -167,6 +167,25 @@ class Editor extends Parser implements ParserInterface
                 transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
             }
 
+            [data-bw-insert-zone] {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 48px;
+                margin: 0.5rem 0;
+                border: 2px dashed #d1d5db;
+                border-radius: 0.5rem;
+                color: #9ca3af;
+                font-size: 0.875rem;
+                transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+            }
+
+            [data-bw-insert-zone].bw-insert-zone-active {
+                border-color: #6b7280;
+                background-color: rgba(107, 114, 128, 0.08);
+                color: #4b5563;
+            }
+
             [drag-item].blockwire-entering {
                 animation: blockwire-enter 280ms cubic-bezier(0.22, 1, 0.36, 1);
             }
