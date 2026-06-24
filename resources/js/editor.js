@@ -807,6 +807,22 @@ window.blockwire = (config) => {
                 root.documentElement.setAttribute('data-bw-shortcuts-bound', '1');
             }
 
+            if (! root.documentElement.hasAttribute('data-bw-deselect-bound')) {
+                root.addEventListener('click', (e) => {
+                    if (e.target.closest('[drag-item]')) {
+                        return;
+                    }
+
+                    this.activeBlockId = false;
+                    this.applyActiveBlockState(root);
+
+                    Livewire.dispatch('blockEditComponentSelected', {
+                        blockId: false
+                    });
+                });
+                root.documentElement.setAttribute('data-bw-deselect-bound', '1');
+            }
+
             if (this.dropList) {
                 this.dropList.querySelectorAll('[drag-item]').forEach(el => {
                     if (el.dataset.bwPickerBound === '1') {
