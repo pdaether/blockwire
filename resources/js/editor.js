@@ -956,6 +956,11 @@ window.blockwire = (config) => {
                 el.addEventListener('dragstart', e => {
                     e.target.setAttribute('dragging', true);
                     this.currentDragItem = el;
+
+                    // Defer so the DOM mutation doesn't happen while the
+                    // browser is still capturing the drag image, which can
+                    // otherwise abort the native drag in some browsers.
+                    window.setTimeout(() => this.showInsertZones(root), 0);
                 });
 
                 el.addEventListener('dragover', e => {
@@ -985,6 +990,7 @@ window.blockwire = (config) => {
                 el.addEventListener('dragend', e => {
                     e.target.removeAttribute('dragging');
                     this.currentDragItem = null;
+                    this.hideInsertZones(root);
                 });
 
                 el.addEventListener('dragenter', e => {
@@ -1101,14 +1107,43 @@ window.blockwire = (config) => {
 
                 let insertingEl = document.querySelector('[inserting]');
 
-                if (! insertingEl) {
+                if (insertingEl) {
+                    this.queuePreviewChange('insert', { index, placement });
+                    this.component().call('insertBlock', insertingEl.dataset.block, index, placement);
+
+                    insertingEl.removeAttribute('inserting');
+                    this.hideInsertZones(root);
+
                     return;
                 }
 
-                this.queuePreviewChange('insert', { index, placement });
-                this.component().call('insertBlock', insertingEl.dataset.block, index, placement);
+                let draggingEl = root.querySelector('[dragging]');
 
-                insertingEl.removeAttribute('inserting');
+                if (! draggingEl) {
+                    return;
+                }
+
+                let targetItem = root.querySelector(`[drag-item][data-block="${index}"]`);
+
+                if (! targetItem || targetItem === draggingEl) {
+                    return;
+                }
+
+                this.lastTopPos = root.documentElement.scrollTop;
+
+                this.animateCurrentLayoutShift(root, () => {
+                    if (placement === 'after') {
+                        targetItem.after(draggingEl);
+                    } else {
+                        targetItem.before(draggingEl);
+                    }
+                });
+
+                let orderIds = Array.from(root.querySelectorAll('[drag-item]'))
+                    .map(itemEl => itemEl.dataset.block);
+
+                this.component().call('reorder', orderIds);
+
                 this.hideInsertZones(root);
             });
 
