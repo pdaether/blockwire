@@ -4,6 +4,13 @@ All notable changes to `blockwire` will be documented in this file.
 
 ## Unreleased
 
+## 2.4.0 - 2026-06-24
+
+- Show content insertion zones and label when reordering blocks
+- Add content insertion zones and label to the editor
+- Add click listener to deselect active block when clicking outside
+- Fix race condition in iframe handling
+
 ## 2.3.1 - 2026-03-26
 
 - Cleanup UI
