@@ -30,6 +30,14 @@ window.blockwire = (config) => {
 
         resizeWindowHandler: null,
 
+        keydownUndoHandler: null,
+
+        keydownRedoHandler: null,
+
+        navigatedHandler: null,
+
+        iframeLoadHandler: null,
+
         panelWidthStorageKey: 'blockwire-panel-width',
 
         panelWidthCustomizedStorageKey: 'blockwire-panel-width-customized',
@@ -565,30 +573,27 @@ window.blockwire = (config) => {
             };
             window.addEventListener('resize', this.resizeWindowHandler);
 
-            document.addEventListener('keydown', (e) => this.undo(e, this));
-            document.addEventListener('keydown', (e) => this.redo(e, this));
+            this.keydownUndoHandler = (e) => this.undo(e, this);
+            this.keydownRedoHandler = (e) => this.redo(e, this);
+            document.addEventListener('keydown', this.keydownUndoHandler);
+            document.addEventListener('keydown', this.keydownRedoHandler);
+
+            this.iframeLoadHandler = () => this.onIframeReady();
 
             this.initListeners()
 
-            const onIframeReady = () => {
-                this.initListeners()
-                this.activeBlockId = this.normalizeActiveBlockId(this.$wire.activeBlockIndex);
-                this.applyActiveBlockState(this.iframe.contentWindow.document);
+            this.detectIframeReady();
 
-                this.iframe.contentWindow.scrollTo(0, this.lastTopPos)
-
-                this.applyPendingPreviewAnimation()
+            // Recover after a wire:navigate visit: Alpine's init() can race the
+            // srcdoc iframe's load event (the iframe often finishes loading
+            // before the load listener is attached), so re-bind the picker and
+            // re-run the iframe-ready detection once navigation settles.
+            this.navigatedHandler = () => {
+                this.dropList = document.querySelector("[drop-list]");
+                this.bindPickerListeners();
+                this.detectIframeReady();
             };
-
-            this.iframe.addEventListener("load", () => {
-                onIframeReady();
-            })
-
-            // Handle race condition: if the iframe (using srcdoc) has already
-            // loaded before the load listener was attached, trigger manually.
-            if (this.iframe.contentDocument && this.iframe.contentDocument.readyState === 'complete' && this.iframe.contentDocument.documentElement) {
-                onIframeReady();
-            }
+            document.addEventListener('livewire:navigated', this.navigatedHandler);
 
             Livewire.on('activeBlockIndexChanged', (data) => {
                 let activeBlockId = this.normalizeActiveBlockId(data);
@@ -632,6 +637,88 @@ window.blockwire = (config) => {
                 this.previewRefreshQueued = false;
                 this.clearPreviewRefreshTimer();
             });
+        },
+
+        onIframeReady() {
+            if (! this.iframe || ! this.iframe.contentWindow) {
+                return;
+            }
+
+            this.initListeners();
+            this.activeBlockId = this.normalizeActiveBlockId(this.$wire.activeBlockIndex);
+            this.applyActiveBlockState(this.iframe.contentWindow.document);
+
+            this.iframe.contentWindow.scrollTo(0, this.lastTopPos);
+
+            this.applyPendingPreviewAnimation();
+        },
+
+        detectIframeReady() {
+            this.iframe = document.getElementById("frame");
+
+            if (! this.iframe) {
+                return;
+            }
+
+            // Re-adding the same stable handler reference to the same element
+            // is a no-op, so this is safe to call on every navigation.
+            this.iframe.addEventListener('load', this.iframeLoadHandler);
+
+            const ensureIframeReady = () => {
+                const doc = this.iframe && this.iframe.contentDocument;
+
+                if (doc && doc.readyState === 'complete' && doc.documentElement && doc.body) {
+                    this.onIframeReady();
+
+                    return true;
+                }
+
+                return false;
+            };
+
+            // Catch an already-loaded srcdoc iframe that finished before the
+            // load listener was attached, polling briefly until it is ready.
+            if (! ensureIframeReady()) {
+                let attempts = 0;
+                const poll = () => {
+                    if (ensureIframeReady() || attempts++ > 60) {
+                        return;
+                    }
+
+                    requestAnimationFrame(poll);
+                };
+                requestAnimationFrame(poll);
+            }
+        },
+
+        destroy() {
+            if (this.resizeWindowHandler) {
+                window.removeEventListener('resize', this.resizeWindowHandler);
+                this.resizeWindowHandler = null;
+            }
+
+            if (this.keydownUndoHandler) {
+                document.removeEventListener('keydown', this.keydownUndoHandler);
+                this.keydownUndoHandler = null;
+            }
+
+            if (this.keydownRedoHandler) {
+                document.removeEventListener('keydown', this.keydownRedoHandler);
+                this.keydownRedoHandler = null;
+            }
+
+            if (this.navigatedHandler) {
+                document.removeEventListener('livewire:navigated', this.navigatedHandler);
+                this.navigatedHandler = null;
+            }
+
+            if (this.iframe && this.iframeLoadHandler) {
+                this.iframe.removeEventListener('load', this.iframeLoadHandler);
+            }
+            this.iframeLoadHandler = null;
+
+            this.stopPanelResize();
+            this.clearPreviewRefreshTimer();
         },
 
         restorePanelWidth() {
@@ -797,6 +884,54 @@ window.blockwire = (config) => {
         },
 
         initListeners() {
+            this.bindPickerListeners();
+            this.bindIframeListeners();
+        },
+
+        bindPickerListeners() {
+            if (! this.dropList) {
+                return;
+            }
+
+            this.dropList.querySelectorAll('[drag-item]').forEach(el => {
+                // Use a JS property rather than a data-* attribute: the picker
+                // lives in the Livewire-morphed document, and morph resets any
+                // attribute not present in the server HTML, which would wipe an
+                // attribute guard and cause the listener to be bound twice.
+                if (el.bwPickerBound) {
+                    return;
+                }
+
+                el.bwPickerBound = true;
+
+                // The picker lives in the main document, but the insert zones it
+                // toggles live in the iframe, so resolve the frame document
+                // lazily at drag time rather than at bind time.
+                el.addEventListener("dragstart", e => {
+                    let root = this.getFrameDocument();
+
+                    e.target.setAttribute('inserting', true);
+
+                    if (root) {
+                        this.showInsertZones(root);
+                    }
+                });
+
+                el.addEventListener('dragend', e => {
+                    let root = this.getFrameDocument();
+
+                    e.target.removeAttribute('inserting');
+
+                    if (root) {
+                        this.hideInsertZones(root);
+                    }
+                });
+
+                el.addEventListener('dragover', e => e.preventDefault());
+            });
+        },
+
+        bindIframeListeners() {
             let root = this.getFrameDocument();
 
             if (! root || ! root.documentElement) {
@@ -823,28 +958,6 @@ window.blockwire = (config) => {
                     });
                 });
                 root.documentElement.setAttribute('data-bw-deselect-bound', '1');
-            }
-
-            if (this.dropList) {
-                this.dropList.querySelectorAll('[drag-item]').forEach(el => {
-                    if (el.dataset.bwPickerBound === '1') {
-                        return;
-                    }
-
-                    el.dataset.bwPickerBound = '1';
-
-                    el.addEventListener("dragstart", e => {
-                        e.target.setAttribute('inserting', true);
-                        this.showInsertZones(root);
-                    });
-
-                    el.addEventListener('dragend', e => {
-                        e.target.removeAttribute('inserting');
-                        this.hideInsertZones(root);
-                    });
-
-                    el.addEventListener('dragover', e => e.preventDefault());
-                });
             }
 
             root.querySelectorAll('[drop-placeholder]').forEach(el => {
@@ -1064,6 +1177,8 @@ window.blockwire = (config) => {
         },
 
         showInsertZones(root) {
+            this.hideInsertZones(root);
+
             let items = Array.from(root.querySelectorAll('[drag-item]'));
 
             if (! items.length) {
