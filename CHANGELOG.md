@@ -2,7 +2,9 @@
 
 All notable changes to `blockwire` will be documented in this file.
 
-## Unreleased
+## 2.4.1 - 2026-06-30
+
+- Refactor editor.js: Improve event handling and iframe readiness detection
 
 ## 2.4.0 - 2026-06-24
 
