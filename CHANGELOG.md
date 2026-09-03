@@ -2,14 +2,16 @@
 
 All notable changes to `blockwire` will be documented in this file.
 
-## 2.4.1 - 2026-06-30
-
-- Refactor editor.js: Improve event handling and iframe readiness detection
+## 2.5.0 - 2026-09-03
 
 - Add support for Laravel 13
 - **Breaking:** Drop support for Laravel 10. The `php: ^8.4` requirement already excluded every Laravel 10 release, which supports PHP 8.1 - 8.3
 - Require `spatie/laravel-package-tools` `^1.93.2`, the first release allowing `illuminate/contracts` `^13.0`
 - Upgrade the test suite to Pest 4 / PHPUnit 12 and test against Testbench 9, 10 and 11
+
+## 2.4.1 - 2026-06-30
+
+- Refactor editor.js: Improve event handling and iframe readiness detection
 
 ## 2.4.0 - 2026-06-24
 
