@@ -17,19 +17,25 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         php: [8.4, 8.5]
-        laravel: ['11.*', '12.*']
+        laravel: ['11.*', '12.*', '13.*']
         stability: [prefer-stable]
         include:
           - laravel: 11.*
             testbench: 9.*
           - laravel: 12.*
             testbench: 10.*
+          - laravel: 13.*
+            testbench: 11.*
+        exclude:
+          # Laravel 11 officially supports PHP 8.2 - 8.4 only.
+          - laravel: 11.*
+            php: 8.5
 
     name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
