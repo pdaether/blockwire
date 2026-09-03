@@ -4,7 +4,7 @@
 
 - PHP `^8.4`
 - Livewire `^4.0`
-- Laravel components via `illuminate/contracts` `^10|^11|^12`
+- Laravel components via `illuminate/contracts` `^11|^12|^13`
 
 ## Install package
 
