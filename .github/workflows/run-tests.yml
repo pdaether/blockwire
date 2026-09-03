@@ -42,7 +42,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: dom, curl, libxml, mbstring, iconv, intl, zip, pdo_sqlite
-          coverage: none
+          coverage: pcov
 
       - name: Setup problem matchers
         run: |
